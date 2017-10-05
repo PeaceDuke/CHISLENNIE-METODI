@@ -9,6 +9,8 @@ namespace ЧМ_Лаб3
 {
     class Program
     {
+        // KOLYA HUI!
+
         const double eps = 0.0001;
         static void Main(string[] args)
         {
