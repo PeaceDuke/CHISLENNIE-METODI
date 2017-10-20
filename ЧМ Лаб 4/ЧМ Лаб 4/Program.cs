@@ -18,6 +18,7 @@ namespace ЧМ_Лаб_4
         static void NewtonMethod()
         {
             //дарова))
+            //дароу
         }
     }
 }
