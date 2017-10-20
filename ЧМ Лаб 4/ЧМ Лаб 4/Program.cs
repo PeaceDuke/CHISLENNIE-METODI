@@ -5,7 +5,8 @@ namespace ЧМ_Лаб_4
     internal static class Program
     {
         private const double Eps = 0.0001;
-        //вариант 16а.
+
+        //функция f1.
         private static double F1(double x, double y, int variant)
         {
             switch (variant)
@@ -18,11 +19,13 @@ namespace ЧМ_Лаб_4
             return 0;
         }
 
+        //производная f1 по x.
         private static double Dx_F1(double x, double y, int variant)
         {
             return 1;
         }
 
+        //производная f1 по y.
         private static double Dy_F1(double x, double y, int variant)
         {
             switch (variant)
@@ -35,6 +38,7 @@ namespace ЧМ_Лаб_4
             return 0;
         }
 
+        //функция f2.
         private static double F2(double x, double y, int variant)
         {
             switch (variant)
@@ -47,6 +51,7 @@ namespace ЧМ_Лаб_4
             return 0;
         }
 
+        //производная f2 по x.
         private static double Dx_F2(double x, double y, int variant)
         {
             switch (variant)
@@ -59,6 +64,7 @@ namespace ЧМ_Лаб_4
             return 0;
         }
 
+        //производная f2 по y.
         private static double Dy_F2(double x, double y, int variant)
         {
             switch (variant)
@@ -73,17 +79,56 @@ namespace ЧМ_Лаб_4
 
         static void Main(string[] args)
         {
+            //SimpleIterationMethod.
+            double x = -0.25;
+            double y = -1;
+            SimpleIterMethod(x, y, 16);
             //NewtonMethod.
-            var x = -0.25;
-            var y = -1;
+            x = -0.25;
+            y = -1;
             NewtonMethod(x, y, 16);
         }
 
-        private static void SimpleIterMethod()
+        //метод простой итерации.
+        private static void SimpleIterMethod(double x, double y, int variant)
         {
-            
+            var iterCount = 0;
+            do
+            {
+                iterCount++;
+                x = SIMethodFiX(x, y, 16);
+                y = SIMethodFiY(x, y, 16);
+            } while (Math.Abs(F1(x, y, variant)) >= Eps || Math.Abs(F2(x, y, variant)) >= Eps);
+            Console.WriteLine("x: " + x + " y: " + y + " " + iterCount + " iterations");
         }
 
+        //функция fi(x) для МПИ.
+        private static double SIMethodFiX(double x, double y, int variant)
+        {
+            switch (variant)
+            {
+                case 16:
+                    return -Math.Cos(y + 0.5) + 0.8;
+                case 17:
+                    return 1.3 - Math.Sin(y - 1);
+            }
+            return 0;
+        }
+
+        //функция fi(y) для МПИ.
+        private static double SIMethodFiY(double x, double y, int variant)
+        {
+            switch (variant)
+            {
+                case 16:
+                    return (Math.Sin(x) - 1.6) / 2;
+                case 17:
+                    return Math.Sin(x + 1) + 0.8;
+            }
+            return 0;
+        }
+
+        //метод Ньютона.
         private static void NewtonMethod(double x, double y, int variant)
         {
             var iterCount = 0;
@@ -98,15 +143,17 @@ namespace ЧМ_Лаб_4
                     Dx_F2(x, y, variant), Dy_F2(x, y, variant));
                 x = x - dx / d;
                 y = y - dy / d;
-            } while (Math.Abs(F1(x, y, variant)) >= Eps && Math.Abs(F2(x, y, variant)) >= Eps);
+            } while (Math.Abs(F1(x, y, variant)) >= Eps || Math.Abs(F2(x, y, variant)) >= Eps);
             Console.WriteLine("x: " + x + " y: " + y + " " + iterCount + " iterations");
         }
 
+        //считает определитель матрицы 2x2.
         private static double Calc2X2MatrixDeterminant(double el11, double el12, double el21, double el22)
         {
             return el11 * el22 - el12 * el21;
         }
 
+        //считает норму вектора (x, y).
         private static double CalcXYNorm(double x, double prevX, double y, double prevY)
         {
             return Math.Sqrt(Math.Pow(x - prevX, 2) + Math.Pow(y - prevY, 2));
