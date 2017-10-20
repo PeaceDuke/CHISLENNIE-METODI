@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace CMLab3
 {
@@ -38,8 +39,6 @@ namespace CMLab3
             bLU = prodMatrixVector(p, bLU, n);
             var yLU = calcY(l, bLU, n);
             var xLU = calcX(u, yLU, n);
-            //считаем решение методом простой итерации.
-            //за начальное приближение берём вектор b.
             var x = b.Clone() as double[];
             printStr("Метод простых итераций");
             printStr();
@@ -47,75 +46,87 @@ namespace CMLab3
             printStr("Полученный методом простой итерации ответ:");
             printStr();
             printVector(x, n);
-            printStr("Искомый ответ x:");
+            printStr("Полученный LU-разложением ответ:");
             printStr();
             printVector(xLU, n);
             printStr();
             x = b.Clone() as double[];
             printStr("Метод наискорейшего спуска");
             printStr();
-            fastestWayDownMethod(a, b, n, ref x, xLU, out iterationCounts[0]);
+            fastestWayDownMethod(a, b, n, ref x, xLU, out iterationCounts[1]);
             printStr("Полученный методом наискорейшего спуска ответ:");
             printStr();
             printVector(x, n);
-            printStr("Искомый ответ x:");
+            printStr("Полученный LU-разложением ответ:");
             printStr();
             printVector(xLU, n);
             printStr();
             x = b.Clone() as double[];
             printStr("Метод ПВР");
             printStr();
-            PVRMethod(a, b, n, ref x, xLU, out iterationCounts[0]);
-            printStr("Полученный методом ПВРС ответ:");
+            PVRMethod(a, b, n, ref x, xLU, out iterationCounts[2]);
+            printStr("Полученный методом ПВР ответ:");
             printStr();
             printVector(x, n);
-            printStr("Искомый ответ x:");
+            printStr("Полученный LU-разложением ответ:");
             printStr();
             printVector(xLU, n);
             printStr();
             x = b.Clone() as double[];
             printStr("Метод сопряженных градиентов");
             printStr();
-            conjurateGradientsMethod(a, b, n, ref x, xLU, out iterationCounts[0]);
+            conjurateGradientsMethod(a, b, n, ref x, xLU, out iterationCounts[3]);
             printStr("Полученный методом сопряженных градиентов ответ:");
             printStr();
             printVector(x, n);
-            printStr("Искомый ответ x:");
+            printStr("Полученный LU-разложением ответ:");
             printStr();
             printVector(xLU, n);
+            printStr();
+            printStr();
+            var conditionNumber = calcNorm(a, n) * calcNorm(calcReverseA(l, u, n), n);
+            printStr("Число обусловленности матрицы: " + conditionNumber.ToString("0.000"));
+            printStr();
+            printStr("Теоретическое число итераций для метода простых итераций: " + (Math.Log(1 / eps) / 2 * conditionNumber).ToString("0.000") + "  против  " + iterationCounts[0] + " полученных");
+            printStr();
+            printStr("Теоретическое число итераций для метода наискорейшего спуска: " + (Math.Log(1 / eps) * conditionNumber).ToString("0.000") + "  против  " + iterationCounts[1] + " полученных");
+            printStr();
+            printStr("Теоретическое число итераций для метода ПВР: " + (Math.Log(1 / eps) / 4 * Math.Sqrt(conditionNumber)).ToString("0.000") + "  против  " + iterationCounts[2] + " полученных");
+            printStr();
+            printStr("Теоретическое число итераций для метода сопряженных градиентов: " + (Math.Log(2 / eps) / 2 * Math.Sqrt(conditionNumber)).ToString("0.000") + "  против  " + iterationCounts[3] + " полученных");
             printStr();
             w.Close();
         }
 
         //метод простой итерации.
-        static void simpleIterationMethod(double[,] a, double[] b, int n, double[] x, double[] answer,out int iteration)
+        static void simpleIterationMethod(double[,] a, double[] b, int n, double[] x, double[] answer, out int iteration)
         {
             var gamma = 0.9;
             var tau = gamma * 2 / calcMatrixNorm(a, n);
             iterationsCount = 0;
             discrepancyNorm = 0;
-            double[] prevX = x.Clone() as double[];
             printStr(" №   ");
             for (int i = 0; i < n; i++)
             {
                 printStr("x" + i + "        ");
             }
-            printStr("Невязка   Норма q   Погрешность");
+            printStr("tau       Невязка   q         Погрешность");
             printStr();
             do
             {
                 iterationsCount++;
+                var prevX = x.Clone() as double[];
                 for (int i = 0; i < n; i++)
                 {
                     double sum = 0;
                     for (int j = 0; j < n; j++)
                     {
-                        sum += a[i, j] * x[j];
+                        sum += a[i, j] * prevX[j];
                     }
                     x[i] = x[i] + tau * (b[i] - sum);
                 }
                 //считаем следующее значение вектора x для вычисления q.
-                var nextX = new double[n];
+                var nextX = new double[] { 0, 0, 0, 0 };
                 for (int i = 0; i < n; i++)
                 {
                     double sum = 0;
@@ -133,44 +144,41 @@ namespace CMLab3
                 printStr("   ");
                 for (int i = 0; i < n; i++)
                 {
-                    printStr(x[i].ToString("0.00000") + "   ");
+                    printStr(x[i].ToString("0.0000000") + (x[i] < 0 ? "  " : "   "));
                 }
-                printStr(discrepancyNorm.ToString("0.00000") + "   " + q.ToString("0.00000") + "   " + error.ToString("0.00000"));
+                printStr(tau.ToString("0.00000") + "   " + discrepancyNorm.ToString("0.00000") + (discrepancyNorm > 9 ? "  " : "   ") + q.ToString("0.00000") + "   " + error.ToString("0.00000"));
                 printStr();
-                prevX = x.Clone() as double[];
-            } while (error >= eps);
+            } while (discrepancyNorm > eps);
             iteration = iterationsCount;
         }
 
-        //градиентный метод наискорейшего спуска.
         static void fastestWayDownMethod(double[,] a, double[] b, int n, ref double[] x, double[] answer, out int iteration)
         {
             error = 0;
             iterationsCount = 0;
             discrepancyNorm = 0;
             double q = 0;
-            double alpha; //вектор направления.
-            var g = new double[n]; //вектор градиента.
-            printStr(" №   ");
+            var r = new double[n]; //вектор градиента.
+            double tau = 0;
             var oldX = new double[n];
             var nextX = new double[n];
+            printStr(" №   ");
             for (int i = 0; i < n; i++)
             {
                 printStr("x" + i + "        ");
             }
-            answer = negationVection(answer, n);
-            printStr("Невязка   alpha   Норма q   Погрешность");
+            printStr("Невязка   tau       q       Погрешность");
             printStr();
             do
             {
                 iterationsCount++;
-                g = negationVection(sumVectors(b, prodMatrixVector(a, x, n), n), n);
-                alpha = Math.Pow(calcVectorNorm(g, n), 2) / scolarMult(prodMatrixVector(a, g, n), g, n);
                 oldX = x;
-                x = sumVectors(x, prodVectorNumber(g, alpha, n), n);
-                g = negationVection(sumVectors(b, prodMatrixVector(a, x, n), n), n);
-                alpha = Math.Pow(calcVectorNorm(g, n), 2) / scolarMult(prodMatrixVector(a, g, n), g, n);
-                nextX = sumVectors(x, prodVectorNumber(g, alpha, n), n);
+                r = diffVector(prodMatrixVector(a, x, n), b, n);
+                tau = scolarMult(r, r, n) / scolarMult(prodMatrixVector(a, r, n), r, n);
+                x = diffVector(x, prodVectorNumber(r, tau, n), n);
+                r = diffVector(prodMatrixVector(a, x, n), b, n);
+                tau = scolarMult(r, r, n) / scolarMult(prodMatrixVector(a, r, n), r, n);
+                nextX = diffVector(x, prodVectorNumber(r, tau, n), n);
                 discrepancyNorm = calcVectorNorm(diffVector(b, prodMatrixVector(a, x, n), n), n);
                 q = calcQ(oldX, x, nextX, n);
                 error = calcVectorNorm(diffVector(x, answer, n), n);
@@ -178,23 +186,23 @@ namespace CMLab3
                 printStr("   ");
                 for (int i = 0; i < n; i++)
                 {
-                    printStr((x[i] * - 1).ToString("0.00000") + ((x[i] * -1) > 0 ? "   " : "  "));
+                    printStr(x[i].ToString("0.0000000") + (x[i] > 0 ? "   " : "  "));
                 }
-                printStr(discrepancyNorm.ToString("0.00000") + "   " + alpha.ToString("0.00000") + "   " + q.ToString("0.00000") + "   " + error.ToString("0.00000"));
+                printStr(discrepancyNorm.ToString("0.00000") + (discrepancyNorm > 9 ? "  " : "   ") + tau.ToString("0.00000") + "   " + q.ToString("0.00000") + "   " + error.ToString("0.00000"));
                 printStr();
-            } while (error >= eps);
-            x = negationVection(x, n);
+            } while (discrepancyNorm > eps);
             iteration = iterationsCount;
         }
 
         //метод ПВР.
         static void PVRMethod(double[,] a, double[] b, int n, ref double[] x, double[] answer, out int iteration)
         {
+            var localEps = 0.01;
             error = 0;
-            double localEps = 0.01;
             iterationsCount = 0;
             var tildaX = new double[n];
             var bestOmega = 0.0;
+            var bestOmegasString = string.Empty;
             double q = 0;
             var oldX = new double[n];
             var nextX = new double[n];
@@ -222,19 +230,25 @@ namespace CMLab3
                         tildaX[i] = (b[i] - sum1 - sum2) / a[i, i];
                         x[i] = x[i] + omega * (tildaX[i] - x[i]);
                     }
+                    discrepancyNorm = calcVectorNorm(diffVector(b, prodMatrixVector(a, x, n), n), n); ;
                     error = calcVectorNorm(diffVector(x, answer, n), n);
                 }
-                while (error >= localEps);
-                if(minIter > iterationsCount)
+                while (discrepancyNorm > localEps);
+                if (minIter == iterationsCount)
+                {
+                    bestOmegasString += " | " + omega.ToString("0.0");
+                }
+                if (minIter > iterationsCount)
                 {
                     minIter = iterationsCount;
                     bestOmega = omega;
+                    bestOmegasString = omega.ToString("0.0") + " ";
                 }
-                printStr("Omega = " + omega + ", Kолиичесво итераций: " + iterationsCount);
+                printStr("Omega = " + omega.ToString("0.0") + "; Kоличество итераций: " + iterationsCount);
                 printStr();
             }
             printStr();
-            printStr("Наименьшее число итераций " + minIter + ", достигнуто при omega = " + bestOmega);
+            printStr("Наименьшее число итераций " + minIter + " достигнуто при omega = " + bestOmegasString);
             printStr();
             iterationsCount = 0;
             error = 0;
@@ -245,7 +259,7 @@ namespace CMLab3
             {
                 printStr("x" + i + "        ");
             }
-            printStr("Невязка   Норма q   Погрешность");
+            printStr("Невязка   q         Погрешность");
             printStr();
             do
             {
@@ -287,12 +301,12 @@ namespace CMLab3
                 printStr("   ");
                 for (int i = 0; i < n; i++)
                 {
-                    printStr(x[i].ToString("0.00000") + "   ");
+                    printStr(x[i].ToString("0.0000000") + "   ");
                 }
-                printStr(discrepancyNorm.ToString("0.00000") + "   " + q.ToString("0.00000") + "   " + error.ToString("0.00000"));
+                printStr(discrepancyNorm.ToString("0.0000000") + (discrepancyNorm > 9 ? "  " : "   ") + q.ToString("0.00000") + "   " + error.ToString("0.00000"));
                 printStr();
             }
-            while (error >= localEps);
+            while (discrepancyNorm > eps);
             iteration = iterationsCount;
         }
 
@@ -311,7 +325,7 @@ namespace CMLab3
             {
                 printStr("x" + i + "        ");
             }
-            printStr("Невязка   Норма q   Погрешность");
+            printStr("Невязка   q         Погрешность");
             printStr();
             do
             {
@@ -319,23 +333,29 @@ namespace CMLab3
                 g = diffVector(b, prodMatrixVector(a, x, n), n);
                 d = sumVectors(negationVection(g, n), prodVectorNumber(d, scolarMult(g, g, n) / scolarMult(prevG, prevG, n), n), n);
                 s = scolarMult(d, g, n) / scolarMult(prodMatrixVector(a, d, n), d, n);
+                var prevX = x.Clone() as double[];
                 x = sumVectors(x, prodVectorNumber(d, s, n), n);
                 prevG = g.Clone() as double[];
+                var nextG = diffVector(b, prodMatrixVector(a, x, n), n);
+                var nextD = sumVectors(negationVection(nextG, n), prodVectorNumber(d, scolarMult(nextG, nextG, n) / scolarMult(prevG, prevG, n), n), n);
+                var nextS = scolarMult(nextD, nextG, n) / scolarMult(prodMatrixVector(a, nextD, n), nextD, n);
+                var nextX = sumVectors(x, prodVectorNumber(nextD, nextS, n), n);
                 discrepancyNorm = calcVectorNorm(diffVector(b, prodMatrixVector(a, x, n), n), n);
-                //var q = calcQ(prevX, x, nextX, n);
+                var q = calcQ(prevX, x, nextX, n);
                 error = calcVectorNorm(diffVector(x, answer, n), n);
                 printStr(iterationsCount > 9 ? iterationsCount.ToString() : " " + iterationsCount);
                 printStr("   ");
                 for (int i = 0; i < n; i++)
                 {
-                    printStr(x[i].ToString("0.00000") + "   ");
+                    printStr(x[i].ToString("0.0000000") + "   ");
                 }
-                printStr(discrepancyNorm.ToString("0.00000") + "   " + error.ToString("0.00000"));
+                printStr(discrepancyNorm.ToString("0.0000000") + (discrepancyNorm > 9 ? "  " : "   ") + q.ToString("0.0000000") + "   " + error.ToString("0.0000000"));
                 printStr();
-            } while (error >= eps);
+            } while (discrepancyNorm > eps);
             iteration = iterationsCount;
         }
 
+        //отрицание вектора.
         static double[] negationVection(double[] v, int n)
         {
             var answer = new double[n];
@@ -346,6 +366,7 @@ namespace CMLab3
             return answer;
         }
 
+        //перемножение векторов.
         static double scolarMult(double[] v1, double[] v2, int n)
         {
             double sum = 0;
@@ -611,6 +632,47 @@ namespace CMLab3
         static double calcQ(double[] prevX, double[] x, double[] nextX, int n)
         {
             return calcVectorNorm(diffVector(nextX, x, n), n) / calcVectorNorm(diffVector(x, prevX, n), n);
+        }
+
+        //обратная матрица.
+        static double[,] calcReverseA(double[,] l, double[,] u, int n)
+        {
+            List<double[]> y = new List<double[]>();
+            //вычисление вектора y.
+            for (int i = 0; i < n; i++)
+            {
+                double[] t = new double[n];
+                t[i] = 1;
+                y.Add(calcY(l, t, n));
+            }
+            double[,] x = new double[n, n];
+            //вычисление вектора x.
+            for (int i = 0; i < n; i++)
+            {
+                double[] t = calcX(u, y[i], n);
+                for (int j = 0; j < n; j++)
+                    x[j, i] = t[j];
+            }
+            return x;
+        }
+
+        //норма матрицы.
+        static double calcNorm(double[,] matrix, int n)
+        {
+            double currMax = 0;
+            for (int i = 0; i < n; i++)
+            {
+                double sum = 0;
+                for (int j = 0; j < n; j++)
+                {
+                    sum += Math.Abs(matrix[i, j]);
+                }
+                if (sum > currMax)
+                {
+                    currMax = sum;
+                }
+            }
+            return currMax;
         }
     }
 }
