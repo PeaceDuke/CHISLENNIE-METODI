@@ -12,7 +12,7 @@ namespace ЧМ_Лаб_4
 
         static void SimpleIterMethod()
         {
-            //чонибудь
+            
         }
 
         static void NewtonMethod()
