@@ -87,7 +87,6 @@ namespace ЧМ_Лаб_4
         {
             int variant = 17;
             w = new StreamWriter("out.txt");
-            //SimpleIterationMethod.
             double x;
             double y;
             if (variant.Equals(16))
@@ -105,11 +104,9 @@ namespace ЧМ_Лаб_4
             PrintStr("Метод простой итерации");
             SimpleIterMethod(x, y, variant);
             PrintStr();
-            //NewtonMethod.
             PrintStr("Метод Ньютона");
             NewtonMethod(x, y, variant);
             PrintStr();
-            //GradientMethod.
             PrintStr("Метод градиентного спуска");
             GradientMethod(x, y, variant);
             w.Close();
@@ -270,6 +267,7 @@ namespace ЧМ_Лаб_4
                     minIter = iterCount;
                     bestLamba = lambda;
                 }
+                PrintStr(iterCount.ToString() + "   lampda = " + lambda.ToString());
             }
             x = startX;
             y = startY;
