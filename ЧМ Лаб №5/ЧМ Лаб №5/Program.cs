@@ -4,23 +4,27 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Math;
+using static ЧМ_Лаб__5.LASSolver;
 
 namespace ЧМ_Лаб__5
 {
     class Program
     {
-        const int n = 5, var = 16;
+        public delegate double func(double x);
+        const int n = 5, var = 17;
         const double a = 1, b = 2;
         static double[,] table = new double[2, n];
         static StreamWriter outFile = new StreamWriter("out.txt");
 
         static double Func(double x)
         {
-            if (var.Equals(16))
-                return Atan(x) + 1 / x / x;
-            if (var.Equals(17))
-                return Exp(x) + x + 1; 
-            return 0;
+            switch (var)
+            {
+                case 15: return Pow(x, 2);
+                case 16: return Atan(x) + 1 / x / x;
+                case 17: return Exp(x) + x + 1;
+                default: return 0;
+            }
         }
 
         static void FillTable()
@@ -82,6 +86,42 @@ namespace ЧМ_Лаб__5
             return sum;
         }
 
+        static double CalcIntegral(func f, double a, double b, int aim = 1000)
+        {
+            double sum = 0, delta = (b - a) / aim;
+            for (double i = a; i < b; i+= delta)
+            {
+                sum += f(i);
+            }
+            return Round(sum * delta, aim.ToString().Length - 1);
+        }
+
+        static func G(int num) => delegate (double x) { return Pow(x, num); };
+
+        static func ProdFunc(func f, func g) => delegate (double x) { return f(x) * g(x); };
+
+        static void СontinuousАpprox()
+        {
+            int n = 3;
+            double[,] matrix = new double[n, n];
+            double[] vector = new double[n], c = new double[n];
+            for(int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    matrix[i, j] = CalcIntegral(ProdFunc(G(i), G(j)), a, b);
+                }
+                vector[i] = CalcIntegral(ProdFunc(Func, G(i)), a, b);
+            }
+            conjurateGradientsMethod(matrix, vector, n, ref c);
+            double sum = 0;
+            for(int i = 0; i < n; i++)
+            {
+                sum += Pow(vector[i], 2);
+            }
+            PrintStr(Sqrt(CalcIntegral(ProdFunc(Func, Func), a, b) - sum).ToString());
+        }
+
         static double CalcError(double expected, double recived) => Abs(expected - recived);
 
         static void PrintStr(string str)
@@ -100,12 +140,13 @@ namespace ЧМ_Лаб__5
             FillTable();
             double recived = 0, expected = 0;
             PrintStr("x     Ожидаемое  Полученное   Погрешность");
-            for (double i = 1.1; i < 2; i += 0.1)
+            for (double i = 1.1; i < 2; i += 0.2)
             {
                 recived = InterPolynomial(i);
                 expected = Func(i);
                 PrintStr(i.ToString() + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + CalcError(expected,recived));
             }
+            СontinuousАpprox();
         }
     }
 }
