@@ -85,9 +85,8 @@ namespace ЧМ_Лаб_4
 
         static void Main(string[] args)
         {
-            const int variant = 17;
+            int variant = 17;
             w = new StreamWriter("out.txt");
-            //SimpleIterationMethod.
             double x;
             double y;
             if (variant.Equals(16))
@@ -102,15 +101,13 @@ namespace ЧМ_Лаб_4
             }
             PrintStr("Начальное приближение, определенное геометрически: x = " + x + " y = " + y);
             PrintStr();
-            PrintStr("Метод простой итерации:");
+            PrintStr("Метод простой итерации");
             SimpleIterMethod(x, y, variant);
             PrintStr();
-            //NewtonMethod.
-            PrintStr("Метод Ньютона:");
+            PrintStr("Метод Ньютона");
             NewtonMethod(x, y, variant);
             PrintStr();
-            //GradientMethod.
-            PrintStr("Метод градиентного спуска:");
+            PrintStr("Метод градиентного спуска");
             GradientMethod(x, y, variant);
             w.Close();
         }
@@ -189,6 +186,12 @@ namespace ЧМ_Лаб_4
             return el11 * el22 - el12 * el21;
         }
 
+        //считает норму вектора (x, y).
+        private static double CalcXYNorm(double x, double prevX, double y, double prevY)
+        {
+            return Sqrt(Pow(x - prevX, 2) + Pow(y - prevY, 2));
+        }
+
         private static double V16Fsum(double x, double y)
         {
             return Pow(F1(x, y, 16), 2) + Pow(F2(x, y, 16), 2);
@@ -219,7 +222,6 @@ namespace ЧМ_Лаб_4
             return Sin(2 * (y - 1)) + Cos(y - 1) * (2 * x - 2.6) + 2 * y - 2 * Sin(x + 1) - 1.6;
         }
 
-        //метод градиентного спуска.
         private static void GradientMethod(double x, double y, int variant)
         {
             D varF = V16Fsum;
@@ -265,6 +267,7 @@ namespace ЧМ_Лаб_4
                     minIter = iterCount;
                     bestLamba = lambda;
                 }
+                PrintStr(iterCount.ToString() + "   lampda = " + lambda.ToString());
             }
             x = startX;
             y = startY;
