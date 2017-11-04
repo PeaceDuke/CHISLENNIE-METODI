@@ -30,7 +30,7 @@ namespace ЧМ_Лаб__5
         static void PrintFunc()
         {
             string str;
-            switch (var)
+            switch (Var)
             {
                 case 15: str = "x^2"; break;
                 case 16: str = "Atan(x) + 1 / x^2"; break;
@@ -54,12 +54,12 @@ namespace ЧМ_Лаб__5
         }
         static void PrintTable()
         {
-            PrintStr("Таблица значений на отрезке [" + a + ";" + b + "] с шагом delta = " + ((b - a) / n));
+            PrintStr("Таблица значений на отрезке [" + A + ";" + B + "] с шагом delta = " + ((B - A) / N));
             string xStr = "x:", yStr = "y:";
-            for (int i = 0; i <= n; i++)
+            for (int i = 0; i <= N; i++)
             {
-                xStr += "\t" + table[0, i].ToString("0.0");
-                yStr += "\t" + table[1, i].ToString("0.00000");
+                xStr += "\t" + Table[i].X.ToString("0.0");
+                yStr += "\t" + Table[i].Y.ToString("0.00000");
             }
             PrintStr(xStr);
             PrintStr(yStr);
