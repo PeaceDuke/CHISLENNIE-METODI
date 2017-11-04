@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using static System.Math;
 using static ЧМ_Лаб__5.CubicSpline;
@@ -12,7 +10,7 @@ namespace ЧМ_Лаб__5
     {
         private delegate double func(double x);
 
-        private const int N = 5, Var = 16;
+        private const int N = 5, Var = 17;
         private const double A = 1, B = 2;
         private const double Delta = (B - A) / N;
 
@@ -148,6 +146,17 @@ namespace ЧМ_Лаб__5
                 PrintStr(i + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + CalcError(expected, recived));
             }
             PrintStr();
+            PrintStr("Оценка погрешности аппроксимации значений первой производной в узлах интерполяции:");
+            var m5 = double.MinValue;
+            for (var i = 1.0; i <= 2; i += Delta)
+            {
+                var currentValue = Abs(FifthDerivative(i));
+                if (currentValue > m5)
+                    m5 = currentValue;
+            }
+            PrintStr("max |f'i - mi| <= M5 / 60 * h ^ 4; i = 0,N");
+            PrintStr("max |f'i - mi| <= " + m5 * Pow(Delta, 4) / 60);
+            PrintStr();
         }
 
         private static double CalcIntegral(func f, double a, double b, int aim = 1000)
@@ -179,7 +188,7 @@ namespace ЧМ_Лаб__5
                 vector[i] = CalcIntegral(ProdFunc(Func, G(i)), A, B, aim);
             }
             ConjurateGradientsMethod(matrix, vector, n, ref c);
-            string str = "Приблеженная функция имеет вид: ";
+            string str = "Приближенная функция имеет вид: ";
             for (int i = 0; i < n; i++)
             {
                 if (i.Equals(0))
@@ -228,7 +237,7 @@ namespace ЧМ_Лаб__5
                 vector[i] = sum;
             }
             ConjurateGradientsMethod(matrix, vector, n, ref c);
-            string str = "Приблеженная функция имеет вид: ";
+            string str = "Приближенная функция имеет вид: ";
             for (int i = 0; i < n; i++)
             {
                 if (i.Equals(0))
@@ -302,18 +311,17 @@ namespace ЧМ_Лаб__5
         {
             PrintFunc();
             FillTable();
-            // 1.1 формула Ньютона
+            PrintTable();
             PrintStr("1. Формула Ньютона:");
             NyutonInterpolation();
             PrintStr("1. Кубический сплайн дефекта 1:");
-            // 1.2 кубические сплайны дефекта 1
             BuildSpline(Table, N + 1);
             QuadSpline();
-            PrintStr("Cреднеквадратичное приближение табличным методом");
+            PrintStr("2. Cреднеквадратичное приближение табличным методом");
             TableApprox();
-            PrintStr("Cреднеквадратичное приближение непрерывным методом");
+            PrintStr("2. Cреднеквадратичное приближение непрерывным методом");
             СontinuousАpprox();
-            PrintStr("Обратное интерполирование по формуле Ньютона");
+            PrintStr("3. Обратное интерполирование по формуле Ньютона");
             BackInterpolation(1.5);
             OutFile.Close();
         }
