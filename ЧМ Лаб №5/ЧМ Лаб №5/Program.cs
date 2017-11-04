@@ -167,6 +167,62 @@ namespace ЧМ_Лаб__5
             PrintStr("Погрешность приближения: " + Abs(f - g).ToString());
             PrintStr();
         }
+        
+        static void TableApprox()
+        {
+            int n = 3;
+            double[,] matrix = new double[n, n];
+            double[] vector = new double[n], c = new double[n];
+            double sum = 0.0;
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    sum = 0.0;
+                    for (int k = 0; k <= Program.n; k++)
+                        sum += G(i)(table[0, k]) * G(j)(table[0, k]);
+                    matrix[i, j] = sum;
+                }
+                sum = 0.0;
+                for (int k = 0; k <= Program.n; k++)
+                    sum += table[1, k] * G(i)(table[0, k]);
+                vector[i] = sum;
+            }
+            conjurateGradientsMethod(matrix, vector, n, ref c);
+            string str = "Приблеженная функция имеет вид: ";
+            for (int i = 0; i < n; i++)
+            {
+                if (i.Equals(0))
+                {
+                    str += (c[i].ToString("0.000000"));
+                }
+                else
+                {
+                    str += (Abs(c[i]).ToString("0.000000") + (i > 1 ? ("x^" + i) : "x"));
+                }
+                if (!i.Equals(n - 1))
+                {
+                    str += (c[i + 1] > 0 ? " + " : " - ");
+                }
+            }
+            PrintStr(str);
+            sum = 0.0;
+            double sum1 = 0.0;
+            func sumF = delegate (double x) { return 0; };
+            for (int i = 0; i < n; i++)
+            {
+                sumF = SumFunc(CoefFunc(G(i), c[i]), sumF);
+            }
+            for (int k = 0; k <= Program.n; k++)
+            {
+                sum += table[1, k] * table[1, k];
+                sum1 += sumF(table[0, k]) * sumF(table[0, k]);
+            }
+            var f = sum;
+            var g = sum1;
+            PrintStr("Погрешность приближения: " + Abs(f - g).ToString());
+            PrintStr(); 
+        }
 
         static void TableRevers()
         {
@@ -209,6 +265,8 @@ namespace ЧМ_Лаб__5
             PrintTable();
             PrintStr("Интерполяция методом Ньютона");
             NyutonInterpolation();
+            PrintStr("Cреднеквадратичное приближение табличным методом");
+            TableApprox();
             PrintStr("Cреднеквадратичное приближение непрерывным методом");
             СontinuousАpprox();
             PrintStr("Обратное интерполирование по формуле Ньютона");
