@@ -1,38 +1,40 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ЧМ_Лаб__5
 {
-    static class LASSolver
+    class LASSolver
     {
-        public static void ConjurateGradientsMethod(double[,] a, double[] b, int n, ref double[] x)
+        public static void conjurateGradientsMethod(double[,] a, double[] b, int n, ref double[] x)
         {
             double discrepancyNorm = 0;
             var d = new double[n]; //вектор направления.
             var g = new double[n]; //вектор градиента.
             double s = 0; //скалярный шаг.
-            var prevG = NegationVection(b, n);
+            var prevG = negationVection(b, n);
             do
             {
-                g = DiffVector(b, ProdMatrixVector(a, x, n), n);
-                d = SumVectors(NegationVection(g, n), ProdVectorNumber(d, ScolarMult(g, g, n) / ScolarMult(prevG, prevG, n), n), n);
-                s = ScolarMult(d, g, n) / ScolarMult(ProdMatrixVector(a, d, n), d, n);
-                x = SumVectors(x, ProdVectorNumber(d, s, n), n);
+                g = diffVector(b, prodMatrixVector(a, x, n), n);
+                d = sumVectors(negationVection(g, n), prodVectorNumber(d, scolarMult(g, g, n) / scolarMult(prevG, prevG, n), n), n);
+                s = scolarMult(d, g, n) / scolarMult(prodMatrixVector(a, d, n), d, n);
+                x = sumVectors(x, prodVectorNumber(d, s, n), n);
                 prevG = g.Clone() as double[];
-                discrepancyNorm = CalcVectorNorm(DiffVector(b, ProdMatrixVector(a, x, n), n), n);
+                discrepancyNorm = calcVectorNorm(diffVector(b, prodMatrixVector(a, x, n), n), n);
             } while (discrepancyNorm > 0.0001);
         }
-
-        private static double[] NegationVection(double[] v, int n)
+        public static double[] negationVection(double[] v, int n)
         {
             var answer = new double[n];
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i<n; i++)
             {
                 answer[i] = -v[i];
             }
             return answer;
         }
-
-        private static double CalcVectorNorm(double[] vector, int n)
+        public static double calcVectorNorm(double[] vector, int n)
         {
             double sum = 0;
             for (int i = 0; i<n; i++)
@@ -41,8 +43,7 @@ namespace ЧМ_Лаб__5
             }
             return Math.Sqrt(sum);
         }
-
-        private static double[] ProdMatrixVector(double[,] a, double[] b, int n)
+        public static double[] prodMatrixVector(double[,] a, double[] b, int n)
         {
             double[] prodM = new double[n];
             for (int j = 0; j<n; j++)
@@ -56,8 +57,7 @@ namespace ЧМ_Лаб__5
             }
             return prodM;
         }
-
-        private static double[] DiffVector(double[] a, double[] b, int n)
+        public static double[] diffVector(double[] a, double[] b, int n)
         {
             var difference = new double[n];
             for (int i = 0; i<n; i++)
@@ -66,8 +66,7 @@ namespace ЧМ_Лаб__5
             }
             return difference;
         }
-
-        private static double[] SumVectors(double[] a, double[] b, int n)
+        public static double[] sumVectors(double[] a, double[] b, int n)
         {
             var sum = new double[n];
             for (int i = 0; i<n; i++)
@@ -76,8 +75,7 @@ namespace ЧМ_Лаб__5
             }
             return sum;
         }
-
-        private static double ScolarMult(double[] v1, double[] v2, int n)
+        public static double scolarMult(double[] v1, double[] v2, int n)
         {
             double sum = 0;
             for (int i = 0; i<n; i++)
@@ -86,8 +84,7 @@ namespace ЧМ_Лаб__5
             }
             return sum;
         }
-
-        private static double[] ProdVectorNumber(double[] v, double numb, int n)
+        public static double[] prodVectorNumber(double[] v, double numb, int n)
         {
             var answer = new double[n];
             for (int i = 0; i<n; i++)
