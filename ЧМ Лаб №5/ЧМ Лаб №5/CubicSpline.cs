@@ -45,7 +45,7 @@
             }
 
             // Находим b[i] и d[i], используя найденные ранее c[i]
-            for (var i = n - 1; i > 0; --i)
+            for (var i = n - 1; i > 0; i--)
             {
                 var hi = table[i].X - table[i - 1].X;
                 _splines[i].D = (_splines[i].C - _splines[i - 1].C) / hi;
@@ -54,20 +54,12 @@
         }
 
         // Считает значение сплайна в произвольной точке
-        public static double InterSplines(double x)
+        public static double InterSplines(double x, bool returnOnlyBV)
         {
             var n = _splines.Length;
             SplineCoeffs s;
 
-            if (x <= _splines[0].X) // x меньше левой границы, берем первый отрезок
-            {
-                s = _splines[0];
-            }
-            else if (x >= _splines[n - 1].X) // x больше правой границы, берем последний отрезок
-            {
-                s = _splines[n - 1];
-            }
-            else // x лежит между граничными точками сплайна, ищем нужный отрезок бинарным поиском
+            // Ищем нужный отрезок бинарным поиском
             {
                 var i = 0;
                 var j = n - 1;
@@ -86,6 +78,8 @@
                 s = _splines[j];
             }
             var dx = x - s.X;
+            if (returnOnlyBV)
+                return s.B;
             // Считаем значение сплайна в заданной точке
             return s.A + (s.B + (s.C / 2.0 + s.D * dx / 6.0) * dx) * dx;
         }

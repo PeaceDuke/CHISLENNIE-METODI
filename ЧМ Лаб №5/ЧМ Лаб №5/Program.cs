@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using static System.Math;
 using static ЧМ_Лаб__5.CubicSpline;
@@ -13,6 +14,7 @@ namespace ЧМ_Лаб__5
 
         private const int N = 5, Var = 16;
         private const double A = 1, B = 2;
+        private const double Delta = (B - A) / N;
 
         private static readonly PointD[] Table = new PointD[N + 1];
         private static readonly StreamWriter OutFile = new StreamWriter("out.txt");
@@ -27,7 +29,31 @@ namespace ЧМ_Лаб__5
                 default: return 0;
             }
         }
-        static void PrintFunc()
+
+        // Первая производная f
+        private static double FirstDerivative(double x)
+        {
+            switch (Var)
+            {
+                case 16: return 1 / (x * x + 1) - 2 / (x * x * x);
+                case 17: return Exp(x) + 1;
+                default: return 0;
+            }
+        }
+
+        // Пятая производная f
+        private static double FifthDerivative(double x)
+        {
+            switch (Var)
+            {
+                //case 16: return 24 * Pow(x * x + 1, -5) * (5 * Pow(x, 4) - 10 * x * x + 1) - 720 * Pow(x, -7);
+                case 16: return 24 * (- 30 / Pow(x, 7) - 12 * x * x / Pow(x * x + 1, 4) + 1 / Pow(x * x + 1, 3) + 16 * Pow(x, 4) / Pow(x * x + 1, 5));
+                case 17: return Exp(x);
+                default: return 0;
+            }
+        }
+
+        private static void PrintFunc()
         {
             string str;
             switch (Var)
@@ -44,19 +70,20 @@ namespace ЧМ_Лаб__5
         private static void FillTable()
         {
             var x = A;
-            const double delta = (B - A) / N;
+            
             for(var i = 0; i <= N; i++)
             {
                 Table[i].X = x;
                 Table[i].Y = Func(x);
-                x = Round(x + delta, 1);
+                x = Round(x + Delta, 1);
             }
         }
-        static void PrintTable()
+
+        private static void PrintTable()
         {
             PrintStr("Таблица значений на отрезке [" + A + ";" + B + "] с шагом delta = " + ((B - A) / N));
             string xStr = "x:", yStr = "y:";
-            for (int i = 0; i <= N; i++)
+            for (var i = 0; i <= N; i++)
             {
                 xStr += "\t" + Table[i].X.ToString("0.0");
                 yStr += "\t" + Table[i].Y.ToString("0.00000");
@@ -256,7 +283,7 @@ namespace ЧМ_Лаб__5
             PrintStr();
             TableRevers();
         }
-
+      
         private static double CalcError(double expected, double recived) => Abs(expected - recived);
 
         private static void PrintStr(string str)
