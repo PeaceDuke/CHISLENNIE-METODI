@@ -78,36 +78,49 @@ namespace ЧМ_Лаб__5
 
         static double CalcNeigbours(int a, int b)
         {
-            switch (x.Length)
+            if (a == b)
             {
-                case 1:
-                    return Func(x[0]);
-                case 2:
-                    return (Func(x[1]) - Func(x[0])) / (x[1] - x[0]);
-                default:
-                    double[] x1 = new double[x.Length - 1], x2 = new double[x.Length - 1];
-                    for (var i = 0; i < x.Length - 1; i ++)
-                    {
-                        x1[i] = x[i];
-                    }
-                    for (var i = 1; i < x.Length; i++)
-                    {
-                        x2[i - 1] = x[i];
-                    }
-                    return (CalcNeigbours(x2) - CalcNeigbours(x1)) / (x[x.Length - 1] - x[0]);
+                return Table[a].Y;
+            }
+            else
+            {
+                return (CalcNeigbours(a + 1, b) - CalcNeigbours(a, b - 1)) / (Table[b].X - Table[a].X);
             }
         }
 
-        private static double InterPolynomial(double x)
+        static double InterPolynomial(double x)
         {
             double sum = 0;
-            var xi = new List<double>();
-            for (var i = 0; i < N; i++)
+            for (int i = 0; i <= N; i++)
             {
-                xi.Add(Table[i].X);
-                sum += CalcNeigbours(xi.ToArray()) * OmegaFunc(x, i);
+                sum += CalcNeigbours(0, i) * OmegaFunc(x, i);
             }
             return sum;
+        }
+
+        static void NyutonInterpolation()
+        {
+            double recived = 0, expected = 0;
+            PrintStr("x     Ожидаемое  Полученное   Погрешность");
+            for (double i = 1.1; i < 2; i += 0.2)
+            {
+                recived = InterPolynomial(i);
+                expected = Func(i);
+                PrintStr(i.ToString() + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + CalcError(expected, recived));
+            }
+            PrintStr();
+        }
+
+        static void QuadSpline()
+        {
+            PrintStr("x     Ожидаемое  Полученное   Погрешность");
+            for (var i = 1.1; i < 2; i += 0.2)
+            {
+                var recived = InterSplines(i);
+                var expected = Func(i);
+                PrintStr(i + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + CalcError(expected, recived));
+            }
+            PrintStr();
         }
 
         private static double CalcIntegral(func f, double a, double b, int aim = 1000)
@@ -121,24 +134,26 @@ namespace ЧМ_Лаб__5
         }
 
         private static func G(int num) => x => Pow(x, num);
-
+        static func CoefFunc(func f, double k) => x => k * f(x);
+        private static func SumFunc(func f, func g) => x => f(x) + g(x);
         private static func ProdFunc(func f, func g) => x => f(x) * g(x);
-        private static void СontinuousАpprox()
+
+        static void СontinuousАpprox()
         {
-            const int n = 3;
-            var matrix = new double[n, n];
+            int n = 3, aim = 100000;
+            double[,] matrix = new double[n, n];
             double[] vector = new double[n], c = new double[n];
-            for(var i = 0; i < n; i++)
+            for (int i = 0; i < n; i++)
             {
-                for (var j = 0; j < n; j++)
+                for (int j = 0; j < n; j++)
                 {
-                    matrix[i, j] = CalcIntegral(ProdFunc(G(i), G(j)), A, B);
+                    matrix[i, j] = CalcIntegral(ProdFunc(G(i), G(j)), A, B, aim);
                 }
-                vector[i] = CalcIntegral(ProdFunc(Func, G(i)), A, B);
+                vector[i] = CalcIntegral(ProdFunc(Func, G(i)), A, B, aim);
             }
             ConjurateGradientsMethod(matrix, vector, n, ref c);
-            double sum = 0;
-            for(var i = 0; i < n; i++)
+            string str = "Приблеженная функция имеет вид: ";
+            for (int i = 0; i < n; i++)
             {
                 if (i.Equals(0))
                 {
@@ -154,17 +169,17 @@ namespace ЧМ_Лаб__5
                 }
             }
             PrintStr(str);
-            func sum = delegate (double x) { return 0; } ;
+            func sum = delegate (double x) { return 0; };
             for (int i = 0; i < n; i++)
             {
                 sum = SumFunc(CoefFunc(G(i), c[i]), sum);
             }
-            var f = CalcIntegral(ProdFunc(Func, Func), a, b, aim);
-            var g = CalcIntegral(ProdFunc(sum, sum), a, b, aim);
+            var f = CalcIntegral(ProdFunc(Func, Func), A, B, aim);
+            var g = CalcIntegral(ProdFunc(sum, sum), A, B, aim);
             PrintStr("Погрешность приближения: " + Abs(f - g).ToString());
             PrintStr();
         }
-        
+
         static void TableApprox()
         {
             int n = 3;
@@ -176,16 +191,16 @@ namespace ЧМ_Лаб__5
                 for (int j = 0; j < n; j++)
                 {
                     sum = 0.0;
-                    for (int k = 0; k <= Program.n; k++)
-                        sum += G(i)(table[0, k]) * G(j)(table[0, k]);
+                    for (int k = 0; k <= N; k++)
+                        sum += G(i)(Table[k].X * G(j)(Table[k].X));
                     matrix[i, j] = sum;
                 }
                 sum = 0.0;
-                for (int k = 0; k <= Program.n; k++)
-                    sum += table[1, k] * G(i)(table[0, k]);
+                for (int k = 0; k <= N; k++)
+                    sum += Table[k].Y * G(i)(Table[k].X);
                 vector[i] = sum;
             }
-            conjurateGradientsMethod(matrix, vector, n, ref c);
+            ConjurateGradientsMethod(matrix, vector, n, ref c);
             string str = "Приблеженная функция имеет вид: ";
             for (int i = 0; i < n; i++)
             {
@@ -210,12 +225,33 @@ namespace ЧМ_Лаб__5
             {
                 sumF = SumFunc(CoefFunc(G(i), c[i]), sumF);
             }
-            for (int k = 0; k <= Program.n; k++)
+            for (int k = 0; k <= N; k++)
             {
-                sum += table[1, k] * table[1, k];
-                sum1 += sumF(table[0, k]) * sumF(table[0, k]);
+                sum += Table[k].Y * Table[k].Y;
+                sum1 += sumF(Table[k].X) * sumF(Table[k].X);
             }
             PrintStr(Sqrt(CalcIntegral(ProdFunc(Func, Func), A, B) - sum).ToString());
+        }
+
+        static void TableRevers()
+        {
+            for (int i = 0; i <= N; i++)
+            {
+                double t = Table[i].X;
+                Table[i].X = Table[i].Y;
+                Table[i].Y = t;
+            }
+        }
+
+        private static void BackInterpolation(double y)
+        {
+            TableRevers();
+            double x = InterPolynomial(y);
+            PrintStr("Результат обратного интерполирования для y = " + y.ToString() + ": x =" + x.ToString());
+            PrintStr("Значение функции в полученой точке x: y = " + Func(x));
+            PrintStr("Оценка погрешности для этой точки: " + CalcError(Func(x), y).ToString("0.000000"));
+            PrintStr();
+            TableRevers();
         }
 
         private static double CalcError(double expected, double recived) => Abs(expected - recived);
@@ -238,29 +274,18 @@ namespace ЧМ_Лаб__5
             FillTable();
             // 1.1 формула Ньютона
             PrintStr("1. Формула Ньютона:");
-            PrintStr("x     Ожидаемое  Полученное   Погрешность");
-            for (var i = 1.1; i < 2; i += 0.2)
-            {
-                var recived = InterPolynomial(i);
-                var expected = Func(i);
-                PrintStr(i + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + CalcError(expected, recived));
-            }
-            PrintStr();
+            NyutonInterpolation();
             PrintStr("1. Кубический сплайн дефекта 1:");
             // 1.2 кубические сплайны дефекта 1
             BuildSpline(Table, N + 1);
-            PrintStr("x     Ожидаемое  Полученное   Погрешность");
-            for (var i = 1.1; i < 2; i += 0.2)
-            {
-                var recived = InterSplines(i);
-                var expected = Func(i);
-                PrintStr(i + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + CalcError(expected, recived));
-            }
-            PrintStr();
+            QuadSpline();
+            PrintStr("Cреднеквадратичное приближение табличным методом");
+            TableApprox();
+            PrintStr("Cреднеквадратичное приближение непрерывным методом");
             СontinuousАpprox();
             PrintStr("Обратное интерполирование по формуле Ньютона");
             BackInterpolation(1.5);
-            outFile.Close();
+            OutFile.Close();
         }
     }
 }
