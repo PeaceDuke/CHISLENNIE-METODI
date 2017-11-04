@@ -192,7 +192,7 @@ namespace ЧМ_Лаб__5
                 {
                     sum = 0.0;
                     for (int k = 0; k <= N; k++)
-                        sum += G(i)(Table[k].X * G(j)(Table[k].X));
+                        sum += G(i)(Table[k].X) * G(j)(Table[k].X);
                     matrix[i, j] = sum;
                 }
                 sum = 0.0;
