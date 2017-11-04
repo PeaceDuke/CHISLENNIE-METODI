@@ -230,7 +230,10 @@ namespace ЧМ_Лаб__5
                 sum += Table[k].Y * Table[k].Y;
                 sum1 += sumF(Table[k].X) * sumF(Table[k].X);
             }
-            PrintStr(Sqrt(CalcIntegral(ProdFunc(Func, Func), A, B) - sum).ToString());
+            var f = sum;
+            var g = sum1;
+            PrintStr("Погрешность приближения: " + Abs(f - g).ToString());
+            PrintStr();
         }
 
         static void TableRevers()
