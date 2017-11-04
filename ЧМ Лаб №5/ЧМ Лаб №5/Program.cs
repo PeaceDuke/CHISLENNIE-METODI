@@ -27,6 +27,19 @@ namespace ЧМ_Лаб__5
                 default: return 0;
             }
         }
+        static void PrintFunc()
+        {
+            string str;
+            switch (var)
+            {
+                case 15: str = "x^2"; break;
+                case 16: str = "Atan(x) + 1 / x^2"; break;
+                case 17: str = "Exp(x) + x + 1"; break;
+                default: str = "0"; break;
+            }
+            PrintStr("Рассматриваемая функция: " + str);
+            PrintStr();
+        }
 
         private static void FillTable()
         {
@@ -39,6 +52,19 @@ namespace ЧМ_Лаб__5
                 x = Round(x + delta, 1);
             }
         }
+        static void PrintTable()
+        {
+            PrintStr("Таблица значений на отрезке [" + a + ";" + b + "] с шагом delta = " + ((b - a) / n));
+            string xStr = "x:", yStr = "y:";
+            for (int i = 0; i <= n; i++)
+            {
+                xStr += "\t" + table[0, i].ToString("0.0");
+                yStr += "\t" + table[1, i].ToString("0.00000");
+            }
+            PrintStr(xStr);
+            PrintStr(yStr);
+            PrintStr();
+        }
 
         private static double OmegaFunc(double x, int num)
         {
@@ -50,7 +76,7 @@ namespace ЧМ_Лаб__5
             return res;
         }
 
-        static double CalcNeigbours(double[] x)
+        static double CalcNeigbours(int a, int b)
         {
             switch (x.Length)
             {
@@ -97,7 +123,6 @@ namespace ЧМ_Лаб__5
         private static func G(int num) => x => Pow(x, num);
 
         private static func ProdFunc(func f, func g) => x => f(x) * g(x);
-
         private static void СontinuousАpprox()
         {
             const int n = 3;
@@ -115,7 +140,80 @@ namespace ЧМ_Лаб__5
             double sum = 0;
             for(var i = 0; i < n; i++)
             {
-                sum += Pow(vector[i], 2);
+                if (i.Equals(0))
+                {
+                    str += (c[i].ToString("0.000000"));
+                }
+                else
+                {
+                    str += (Abs(c[i]).ToString("0.000000") + (i > 1 ? ("x^" + i) : "x"));
+                }
+                if (!i.Equals(n - 1))
+                {
+                    str += (c[i + 1] > 0 ? " + " : " - ");
+                }
+            }
+            PrintStr(str);
+            func sum = delegate (double x) { return 0; } ;
+            for (int i = 0; i < n; i++)
+            {
+                sum = SumFunc(CoefFunc(G(i), c[i]), sum);
+            }
+            var f = CalcIntegral(ProdFunc(Func, Func), a, b, aim);
+            var g = CalcIntegral(ProdFunc(sum, sum), a, b, aim);
+            PrintStr("Погрешность приближения: " + Abs(f - g).ToString());
+            PrintStr();
+        }
+        
+        static void TableApprox()
+        {
+            int n = 3;
+            double[,] matrix = new double[n, n];
+            double[] vector = new double[n], c = new double[n];
+            double sum = 0.0;
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    sum = 0.0;
+                    for (int k = 0; k <= Program.n; k++)
+                        sum += G(i)(table[0, k]) * G(j)(table[0, k]);
+                    matrix[i, j] = sum;
+                }
+                sum = 0.0;
+                for (int k = 0; k <= Program.n; k++)
+                    sum += table[1, k] * G(i)(table[0, k]);
+                vector[i] = sum;
+            }
+            conjurateGradientsMethod(matrix, vector, n, ref c);
+            string str = "Приблеженная функция имеет вид: ";
+            for (int i = 0; i < n; i++)
+            {
+                if (i.Equals(0))
+                {
+                    str += (c[i].ToString("0.000000"));
+                }
+                else
+                {
+                    str += (Abs(c[i]).ToString("0.000000") + (i > 1 ? ("x^" + i) : "x"));
+                }
+                if (!i.Equals(n - 1))
+                {
+                    str += (c[i + 1] > 0 ? " + " : " - ");
+                }
+            }
+            PrintStr(str);
+            sum = 0.0;
+            double sum1 = 0.0;
+            func sumF = delegate (double x) { return 0; };
+            for (int i = 0; i < n; i++)
+            {
+                sumF = SumFunc(CoefFunc(G(i), c[i]), sumF);
+            }
+            for (int k = 0; k <= Program.n; k++)
+            {
+                sum += table[1, k] * table[1, k];
+                sum1 += sumF(table[0, k]) * sumF(table[0, k]);
             }
             PrintStr(Sqrt(CalcIntegral(ProdFunc(Func, Func), A, B) - sum).ToString());
         }
@@ -136,6 +234,7 @@ namespace ЧМ_Лаб__5
 
         private static void Main(string[] args)
         {
+            PrintFunc();
             FillTable();
             // 1.1 формула Ньютона
             PrintStr("1. Формула Ньютона:");
@@ -159,6 +258,9 @@ namespace ЧМ_Лаб__5
             }
             PrintStr();
             СontinuousАpprox();
+            PrintStr("Обратное интерполирование по формуле Ньютона");
+            BackInterpolation(1.5);
+            outFile.Close();
         }
     }
 }
