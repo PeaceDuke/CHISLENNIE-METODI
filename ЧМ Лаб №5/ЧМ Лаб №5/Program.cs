@@ -143,7 +143,7 @@ namespace ЧМ_Лаб__5
             PrintStr("x     Ожидаемое  Полученное   Погрешность");
             for (var i = 1.1; i < 2; i += 0.2)
             {
-                var recived = InterSplines(i);
+                var recived = InterSplines(i, false);
                 var expected = Func(i);
                 PrintStr(i + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + CalcError(expected, recived));
             }
@@ -277,7 +277,7 @@ namespace ЧМ_Лаб__5
         {
             TableRevers();
             double x = InterPolynomial(y);
-            PrintStr("Результат обратного интерполирования для y = " + y.ToString() + ": x =" + x.ToString());
+            PrintStr("Результат обратного интерполирования для y = " + y.ToString() + ": x = " + x.ToString());
             PrintStr("Значение функции в полученой точке x: y = " + Func(x));
             PrintStr("Оценка погрешности для этой точки: " + CalcError(Func(x), y).ToString("0.000000"));
             PrintStr();
