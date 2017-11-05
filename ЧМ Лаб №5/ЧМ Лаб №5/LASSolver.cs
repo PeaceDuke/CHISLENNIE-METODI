@@ -96,5 +96,27 @@ namespace ЧМ_Лаб__5
             }
             return answer;
         }
+
+        public static void PrintMatrix(double[,] matrix, int n)
+        {
+            for (int i = 0; i<n; i++)
+            {
+                for (int j = 0; j<n; j++)
+                    Console.Write(matrix[i, j].ToString("0.000") + "\t");
+                Console.WriteLine();
+            }
+            Console.WriteLine();
+        }
+
+        public static void PrintVector(double[] vector, int n)
+        {
+            for (int i = 0; i<n; i++)
+            {
+                Console.Write(vector[i].ToString("0.000") + "\t");
+            }
+            Console.WriteLine();
+            Console.WriteLine();
+        }
+
     }
 }

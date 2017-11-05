@@ -187,6 +187,10 @@ namespace ЧМ_Лаб__5
                 }
                 vector[i] = CalcIntegral(ProdFunc(Func, G(i)), A, B, aim);
             }
+            PrintStr("Матрица C");
+            PrintMatrix(matrix, n);
+            PrintStr("Вектор B");
+            PrintVector(vector, n);
             ConjurateGradientsMethod(matrix, vector, n, ref c);
             string str = "Приближенная функция имеет вид: ";
             for (int i = 0; i < n; i++)
@@ -236,6 +240,10 @@ namespace ЧМ_Лаб__5
                     sum += Table[k].Y * G(i)(Table[k].X);
                 vector[i] = sum;
             }
+            PrintStr("Матрица C");
+            PrintMatrix(matrix, n);
+            PrintStr("Вектор B");
+            PrintVector(vector, n);
             ConjurateGradientsMethod(matrix, vector, n, ref c);
             string str = "Приближенная функция имеет вид: ";
             for (int i = 0; i < n; i++)
