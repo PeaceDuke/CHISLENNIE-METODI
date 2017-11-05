@@ -294,6 +294,7 @@ namespace ЧМ_Лаб__5
         {
             TableRevers();
             double x = InterPolynomial(y);
+            PrintStr("С = " + y);
             PrintStr("Результат обратного интерполирования для y = " + y.ToString() + ": x = " + x.ToString());
             PrintStr("Значение функции в полученой точке x: y = " + Func(x));
             PrintStr("Оценка погрешности для этой точки: " + CalcError(Func(x), y).ToString("0.000000"));
