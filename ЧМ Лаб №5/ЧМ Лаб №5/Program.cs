@@ -49,18 +49,49 @@ namespace ЧМ_Лаб__5
             }
         }
 
+        // Печатает вид четвертой производной f
+        public static void PrintFourthDerivative()
+        {
+            switch (Var)
+            {
+                case 16: PrintStr("Вид 4ой производной f: 24 * x * (5 * x^-7 + (1 - x * x) * (x * x + 1)^-4))"); break;
+                case 17: PrintStr("Вид 4ой производной f: e^x"); break;
+                default: PrintStr();
+            }
+        }
+
         // Пятая производная f
         public static double FifthDerivative(double x)
         {
             switch (Var)
             {
-                //case 16: return 24 * Pow(x * x + 1, -5) * (5 * Pow(x, 4) - 10 * x * x + 1) - 720 * Pow(x, -7);
                 case 16: return 24 * (- 30 / Pow(x, 7) - 12 * x * x / Pow(x * x + 1, 4) + 1 / Pow(x * x + 1, 3) + 16 * Pow(x, 4) / Pow(x * x + 1, 5));
                 case 17: return Exp(x);
                 default: return 0;
             }
         }
 
+        // Печатает вид пятой производной f
+        public static void PrintFifthDerivative()
+        {
+            switch (Var)
+            {
+                case 16: PrintStr("Вид 5ой производной f: 24 * (-30 / x^7 - 12 * x * x / (x * x + 1)^4 + 1 / (x * x + 1)^3 + 16 * x^4 / (x * x + 1)^5)"); break;
+                case 17: PrintStr("Вид 5ой производной f: e^x"); break;
+                default: PrintStr();
+            }
+        }
+
+        // Шестая производная f
+        public static double SixthDerivative(double x)
+        {
+            switch (Var)
+            {
+                case 16: return x * (5040 * Pow(x, -9) + Pow(x * x + 1, -6) * (2400 * x * x - 720 * Pow(x, 4) - 720));
+                case 17: return Exp(x);
+                default: return 0;
+            }
+        }
         private static void PrintFunc()
         {
             string str;
@@ -132,15 +163,30 @@ namespace ЧМ_Лаб__5
             return sum;
         }
 
+        static double Factorial(double n)
+        {
+            if (n == 0)
+                return 1;
+            return n * Factorial(n - 1);
+        }
+
         static void NyutonInterpolation()
         {
+            var M6 = double.MinValue;
+            for (var i = 1.0; i <= 2.0; i += Delta)
+            {
+                if (SixthDerivative(i) > M6)
+                    M6 = SixthDerivative(i);
+            }
+            PrintStr(M6.ToString());
             double recived = 0, expected = 0;
-            PrintStr("x     Ожидаемое  Полученное   Погрешность");
+            PrintStr("x     Ожидаемое  Полученное   Реальная погрешность    Оценка погрешности");
             for (double i = 1.1; i < 2; i += 0.2)
             {
                 recived = InterPolynomial(i);
                 expected = Func(i);
-                PrintStr(i.ToString() + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + CalcError(expected, recived));
+                PrintStr(i + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + CalcError(expected, recived) + "    " +
+                    Abs(M6 * OmegaFunc(i, N + 1) / Factorial(N + 1)));
             }
             PrintStr();
         }
@@ -188,7 +234,7 @@ namespace ЧМ_Лаб__5
 
         static void СontinuousАpprox()
         {
-            int n = 3, aim = 100000;
+            int n = 3, aim = 1000000;
             double[,] matrix = new double[n, n];
             double[] vector = new double[n], c = new double[n];
             for (int i = 0; i < n; i++)

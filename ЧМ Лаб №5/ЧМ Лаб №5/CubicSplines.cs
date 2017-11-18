@@ -128,7 +128,9 @@ namespace ЧМ_Лаб__5
         // Печатает значения M4 и M5.
         public static void PrintM4M5()
         {
+            PrintFourthDerivative();
             PrintStr("M4: " + M4);
+            PrintFifthDerivative();
             PrintStr("M5: " + M5);
             PrintStr();
         }
