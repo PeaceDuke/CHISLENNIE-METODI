@@ -25,6 +25,17 @@ namespace ЧМ_Лаб__6
             }
         }
 
+        // Первая производная f
+        public static double FirstDerivative(double x)
+        {
+            switch (Var)
+            {
+                case 16: return 1 / (x * x + 1) - 2 / (x * x * x);
+                case 17: return Exp(x) + 1;
+                default: return 0;
+            }
+        }
+
         private static double RealValue
         {
             get
@@ -42,6 +53,10 @@ namespace ЧМ_Лаб__6
         {
             double t = CalcTrapezeIntegral();
             PrintStr("Метод трапеции");
+            PrintStr("Приближенное значение: " + t);
+            PrintStr("Погрешность: " + Abs(t - RealValue));
+            t = CalcModifiedTrapezeIntegral();
+            PrintStr("Модифицированный сплайном метод трапеции");
             PrintStr("Приближенное значение: " + t);
             PrintStr("Погрешность: " + Abs(t - RealValue));
             t = CalcSimpsonIntegral();
@@ -64,6 +79,17 @@ namespace ЧМ_Лаб__6
                 sum += (b - a) * (Func(a) + Func(b)) / 2;
             }
             return sum;
+        }
+
+        private static double CalcModifiedTrapezeIntegral()
+        {
+            double sum = 0;
+            for (var i = 1.2; i <= 1.8; i += Delta)
+            {
+                sum += Func(i);
+            }
+            return Delta * (0.5 * (Func(A) + Func(B)) + sum) +
+                   Delta * Delta / 12 * (FirstDerivative(A) - FirstDerivative(B));
         }
 
         private static double CalcSimpsonIntegral()
