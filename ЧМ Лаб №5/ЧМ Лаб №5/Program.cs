@@ -65,6 +65,32 @@ namespace ЧМ_Лаб__5
             PrintStr();
         }
 
+        static void NeigboursTable()
+        {
+            double[,] table = new double[2 * n, n];
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = i; j < 2 * n - i; j += 2)
+                {
+                    table[j, i] = CalcNeigbours((j - i) / 2, (j + i) / 2);
+                }
+            }
+            PrintNeigboursTable(table);
+        }
+
+        static void PrintNeigboursTable(double[,] table)
+        {
+            for(int i = 0; i < 2 * n; i++)
+            {
+                string outStr = "";
+                for(int j = 0; j < n; j++)
+                {
+                    outStr += table[i, j] == 0 ? "\t" : table[i, j].ToString("0.000000") + "\t";
+                }
+                PrintStr(outStr);
+            }
+        }
+
         static double OmegaFunc(double x, int num)
         {
             double res = 1;
@@ -97,6 +123,18 @@ namespace ЧМ_Лаб__5
             return sum;
         }
 
+        static double Factorial(int n)
+        {
+            if (n == 0)
+                return 1.0;
+            return n * Factorial(n - 1);
+        }
+
+        static double CalcNyutonError(double x)
+        {
+            return Pow(Func(a + b / n), n + 1) * OmegaFunc(x, n + 1) / Factorial(n + 1);
+        }
+
         static void NyutonInterpolation()
         {
             double recived = 0, expected = 0;
@@ -105,7 +143,7 @@ namespace ЧМ_Лаб__5
             {
                 recived = InterPolynomial(i);
                 expected = Func(i);
-                PrintStr(i.ToString() + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + CalcError(expected, recived));
+                PrintStr(i.ToString() + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + CalcError(expected, recived) + "   " + CalcNyutonError(i));
             }
             PrintStr();
         }
@@ -263,6 +301,8 @@ namespace ЧМ_Лаб__5
             PrintFunc();
             FillTable();
             PrintTable();
+            PrintStr("Таблица соседних разностей");
+            NeigboursTable();
             PrintStr("Интерполяция методом Ньютона");
             NyutonInterpolation();
             PrintStr("Cреднеквадратичное приближение табличным методом");
