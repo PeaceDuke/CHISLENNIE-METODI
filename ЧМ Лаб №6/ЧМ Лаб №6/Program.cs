@@ -10,7 +10,7 @@ namespace ЧМ_Лаб__6
 {
     class Program
     {
-        private const int N = 100000, Var = 17;
+        private const int N = 100000000, Var = 17;
         private const double A = 1, B = 2;
         private const double Delta = (B - A) / N;
         private static readonly StreamWriter OutFile = new StreamWriter("out.txt");
@@ -51,21 +51,24 @@ namespace ЧМ_Лаб__6
 
         private static void Main(string[] args)
         {
-            double t = CalcTrapezeIntegral();
+            var t = CalcTrapezeIntegral();
             PrintStr("Метод трапеции");
-            PrintStr("Приближенное значение: " + t);
+            PrintStr("Приближенное значение: " + DoubleConverter.ToExactString(t));
             PrintStr("Погрешность: " + Abs(t - RealValue));
+
             t = CalcModifiedTrapezeIntegral();
             PrintStr("Модифицированный сплайном метод трапеции");
-            PrintStr("Приближенное значение: " + t);
+            PrintStr("Приближенное значение: " + DoubleConverter.ToExactString(t));
             PrintStr("Погрешность: " + Abs(t - RealValue));
+
             t = CalcSimpsonIntegral();
             PrintStr("Метод Симпсона");
-            PrintStr("Приближенное значение: " + t);
+            PrintStr("Приближенное значение: " + DoubleConverter.ToExactString(t));
             PrintStr("Погрешность: " + Abs(t - RealValue));
+
             t = CalcGaussIntegral();
             PrintStr("Метод Гаусса(трехточечный)");
-            PrintStr("Приближенное значение: " + t);
+            PrintStr("Приближенное значение: " + DoubleConverter.ToExactString(t));
             PrintStr("Погрешность: " + Abs(t - RealValue));
         }
 
@@ -106,7 +109,7 @@ namespace ЧМ_Лаб__6
 
         private static double CalcGaussIntegral()
         {
-            double sum = 0, a, b, p;
+            double sum = 0, a, b;
             for (int i = 0; i < N; i++)
             {
                 a = A + Delta * i;
