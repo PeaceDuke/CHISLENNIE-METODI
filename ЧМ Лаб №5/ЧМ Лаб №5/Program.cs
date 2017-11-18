@@ -131,8 +131,34 @@ namespace ЧМ_Лаб__5
             PrintStr(yStr);
             PrintStr();
         }
+      
+        static void NeigboursTable()
+        {
+            double[,] table = new double[2 * N, N];
+            for (int i = 0; i < N; i++)
+            {
+                for (int j = i; j < 2 * N - i; j += 2)
+                {
+                    table[j, i] = CalcNeigbours((j - i) / 2, (j + i) / 2);
+                }
+            }
+            PrintNeigboursTable(table);
+        }
 
-        private static double OmegaFunc(double x, int num)
+        static void PrintNeigboursTable(double[,] table)
+        {
+            for(int i = 0; i < 2 * N; i++)
+            {
+                string outStr = "";
+                for(int j = 0; j < N; j++)
+                {
+                    outStr += table[i, j] == 0 ? "\t" : table[i, j].ToString("0.000000") + "\t";
+                }
+                PrintStr(outStr);
+            }
+        }
+
+        static double OmegaFunc(double x, int num)
         {
             double res = 1;
             for(var i = 0; i < num; i++)
@@ -170,7 +196,7 @@ namespace ЧМ_Лаб__5
                 return 1;
             return n * Factorial(n - 1);
         }
-
+      
         static void NyutonInterpolation()
         {
             var M6 = double.MinValue;
@@ -381,6 +407,8 @@ namespace ЧМ_Лаб__5
             PrintFunc();
             FillTable();
             PrintTable();
+            PrintStr("Таблица соседних разностей");
+            NeigboursTable();
             PrintStr("1. Формула Ньютона:");
             NyutonInterpolation();
             PrintStr("1. Кубический сплайн дефекта 1:");
