@@ -84,7 +84,7 @@ namespace ЧМ_Лаб__6
         private static double CalcModifiedTrapezeIntegral()
         {
             double sum = 0;
-            for (var i = 1.2; i <= 1.8; i += Delta)
+            for (var i = 1.0; i <= 2.0; i += Delta)
             {
                 sum += Func(i);
             }
