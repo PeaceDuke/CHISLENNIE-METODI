@@ -10,7 +10,8 @@ namespace ЧМ_Лаб__5
     {
         private delegate double func(double x);
 
-        public const int N = 5, Var = 16;
+        public const int N = 5;
+        private const int Var = 17;
         public const double A = 1, B = 2;
         public const double Delta = (B - A) / N;
 
@@ -196,7 +197,7 @@ namespace ЧМ_Лаб__5
             CubicSplines.CalcSplineParams();
             var teoreticError = CalcTeoreticError();
             PrintM4M5();
-            PrintStr("x     Ожидаемое  Полученное   Оценка                   Погрешность");
+            PrintStr("x     Ожидаемое  Полученное   Оценка              Погрешность");
             for (var i = 1.1; i < 2; i += Delta)
             {
                 var recived = CubicSplines.CalcSplineValue(i);
@@ -204,15 +205,16 @@ namespace ЧМ_Лаб__5
                 PrintStr(i + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + teoreticError + "     " + CalcError(expected, recived));
             }
             PrintStr();
+            teoreticError = 1.0 / 60 * Pow(Delta, 4) * M5;
             PrintStr("Погрешности для первой производной:");
-            PrintStr("x     Ожидаемое   Полученное    Погрешность");
+            PrintStr("x     Ожидаемое   Полученное    Оценка            Погрешность");
             var j = 0;
             for (var i = 1.0; i <= 2.0; i += Delta)
             {
                 var recived = _splineParams[j];
                 var expected = FirstDerivative(i);
                 j++;
-                PrintStr(i.ToString("F1") + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + CalcError(expected, recived));
+                PrintStr(i.ToString("F1") + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + teoreticError + "     " + CalcError(expected, recived));
             }
             PrintStr();
         }

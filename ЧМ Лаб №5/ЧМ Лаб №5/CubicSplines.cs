@@ -6,8 +6,8 @@ namespace ЧМ_Лаб__5
     class CubicSplines
     {
         public static double[] _splineParams;
-        private static double M4 = double.MinValue;
-        private static double M5 = double.MinValue;
+        public static double M4 = double.MinValue;
+        public static double M5 = double.MinValue;
 
         // Считает параметры сплайна.
         public static void CalcSplineParams()
