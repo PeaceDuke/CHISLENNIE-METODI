@@ -23,7 +23,6 @@ namespace ЧМ_Лаб__5
             {
                 case 16: return Atan(x) + 1 / x / x;
                 case 17: return Exp(x) + x + 1;
-                case 20: return Pow(2, x) - 3 * x + 2;
                 default: return 0;
             }
         }
@@ -35,7 +34,6 @@ namespace ЧМ_Лаб__5
             {
                 case 16: return 1 / (x * x + 1) - 2 / (x * x * x);
                 case 17: return Exp(x) + 1;
-                case 20: return Pow(2, x) * Log(2) - 3;
                 default: return 0;
             }
         }
@@ -47,7 +45,6 @@ namespace ЧМ_Лаб__5
             {
                 case 16: return 24 * x * (5 * Pow(x, -7) + (1 - x * x) * Pow(x * x + 1, -4));
                 case 17: return Exp(x);
-                case 20: return Pow(2, x) * Pow(Log(2), 4);
                 default: return 0;
             }
         }
@@ -60,7 +57,6 @@ namespace ЧМ_Лаб__5
                 //case 16: return 24 * Pow(x * x + 1, -5) * (5 * Pow(x, 4) - 10 * x * x + 1) - 720 * Pow(x, -7);
                 case 16: return 24 * (- 30 / Pow(x, 7) - 12 * x * x / Pow(x * x + 1, 4) + 1 / Pow(x * x + 1, 3) + 16 * Pow(x, 4) / Pow(x * x + 1, 5));
                 case 17: return Exp(x);
-                case 20: return Pow(2, x) * Pow(Log(2), 5);
                 default: return 0;
             }
         }
@@ -70,10 +66,8 @@ namespace ЧМ_Лаб__5
             string str;
             switch (Var)
             {
-                case 15: str = "x^2"; break;
                 case 16: str = "Atan(x) + 1 / x^2"; break;
                 case 17: str = "Exp(x) + x + 1"; break;
-                case 20: str = "2^x - 3 * x + 2"; break;
                 default: str = "0"; break;
             }
             PrintStr("Рассматриваемая функция: " + str);
