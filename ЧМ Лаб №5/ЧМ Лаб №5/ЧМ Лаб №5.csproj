@@ -43,7 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CubicSpline.cs" />
+    <Compile Include="CubicSplines.cs" />
     <Compile Include="LASSolver.cs" />
     <Compile Include="PointD.cs" />
     <Compile Include="Program.cs" />

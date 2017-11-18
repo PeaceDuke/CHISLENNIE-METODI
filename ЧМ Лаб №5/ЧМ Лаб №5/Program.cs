@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using static System.Math;
-using static ЧМ_Лаб__5.CubicSpline;
+using static ЧМ_Лаб__5.CubicSplines;
 using static ЧМ_Лаб__5.LASSolver;
 
 namespace ЧМ_Лаб__5
@@ -10,43 +10,57 @@ namespace ЧМ_Лаб__5
     {
         private delegate double func(double x);
 
-        private const int N = 5, Var = 17;
-        private const double A = 1, B = 2;
-        private const double Delta = (B - A) / N;
+        public const int N = 5, Var = 16;
+        public const double A = 1, B = 2;
+        public const double Delta = (B - A) / N;
 
-        private static readonly PointD[] Table = new PointD[N + 1];
-        private static readonly StreamWriter OutFile = new StreamWriter("out.txt");
+        public static readonly PointD[] Table = new PointD[N + 1];
+        public static readonly StreamWriter OutFile = new StreamWriter("out.txt");
 
-        private static double Func(double x)
+        public static double Func(double x)
         {
             switch (Var)
             {
-                case 15: return Pow(x, 2);
                 case 16: return Atan(x) + 1 / x / x;
                 case 17: return Exp(x) + x + 1;
+                case 20: return Pow(2, x) - 3 * x + 2;
                 default: return 0;
             }
         }
 
         // Первая производная f
-        private static double FirstDerivative(double x)
+        public static double FirstDerivative(double x)
         {
             switch (Var)
             {
                 case 16: return 1 / (x * x + 1) - 2 / (x * x * x);
                 case 17: return Exp(x) + 1;
+                case 20: return Pow(2, x) * Log(2) - 3;
+                default: return 0;
+            }
+        }
+
+        // Четвертая производная f
+        public static double FourthDerivative(double x)
+        {
+            switch (Var)
+            {
+                case 16: return 24 * x * (5 * Pow(x, -7) + (1 - x * x) * Pow(x * x + 1, -4));
+                case 17: return Exp(x);
+                case 20: return Pow(2, x) * Pow(Log(2), 4);
                 default: return 0;
             }
         }
 
         // Пятая производная f
-        private static double FifthDerivative(double x)
+        public static double FifthDerivative(double x)
         {
             switch (Var)
             {
                 //case 16: return 24 * Pow(x * x + 1, -5) * (5 * Pow(x, 4) - 10 * x * x + 1) - 720 * Pow(x, -7);
                 case 16: return 24 * (- 30 / Pow(x, 7) - 12 * x * x / Pow(x * x + 1, 4) + 1 / Pow(x * x + 1, 3) + 16 * Pow(x, 4) / Pow(x * x + 1, 5));
                 case 17: return Exp(x);
+                case 20: return Pow(2, x) * Pow(Log(2), 5);
                 default: return 0;
             }
         }
@@ -59,6 +73,7 @@ namespace ЧМ_Лаб__5
                 case 15: str = "x^2"; break;
                 case 16: str = "Atan(x) + 1 / x^2"; break;
                 case 17: str = "Exp(x) + x + 1"; break;
+                case 20: str = "2^x - 3 * x + 2"; break;
                 default: str = "0"; break;
             }
             PrintStr("Рассматриваемая функция: " + str);
@@ -136,26 +151,29 @@ namespace ЧМ_Лаб__5
             PrintStr();
         }
 
-        static void QuadSpline()
+        static void CubSpline()
         {
-            PrintStr("x     Ожидаемое  Полученное   Погрешность");
-            for (var i = 1.1; i < 2; i += 0.2)
+            CubicSplines.CalcSplineParams();
+            var teoreticError = CalcTeoreticError();
+            PrintM4M5();
+            PrintStr("x     Ожидаемое  Полученное   Оценка                   Погрешность");
+            for (var i = 1.1; i < 2; i += Delta)
             {
-                var recived = InterSplines(i, false);
+                var recived = CubicSplines.CalcSplineValue(i);
                 var expected = Func(i);
-                PrintStr(i + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + CalcError(expected, recived));
+                PrintStr(i + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + teoreticError + "     " + CalcError(expected, recived));
             }
             PrintStr();
-            PrintStr("Оценка погрешности аппроксимации значений первой производной в узлах интерполяции:");
-            var m5 = double.MinValue;
-            for (var i = 1.0; i <= 2; i += Delta)
+            PrintStr("Погрешности для первой производной:");
+            PrintStr("x     Ожидаемое   Полученное    Погрешность");
+            var j = 0;
+            for (var i = 1.0; i <= 2.0; i += Delta)
             {
-                var currentValue = Abs(FifthDerivative(i));
-                if (currentValue > m5)
-                    m5 = currentValue;
+                var recived = _splineParams[j];
+                var expected = FirstDerivative(i);
+                j++;
+                PrintStr(i.ToString("F1") + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + CalcError(expected, recived));
             }
-            PrintStr("max |f'i - mi| <= M5 / 60 * h ^ 4; i = 0,N");
-            PrintStr("max |f'i - mi| <= " + m5 * Pow(Delta, 4) / 60);
             PrintStr();
         }
 
@@ -197,7 +215,7 @@ namespace ЧМ_Лаб__5
             {
                 if (i.Equals(0))
                 {
-                    str += (c[i].ToString("0.000000"));
+                    str += c[i].ToString("0.000000");
                 }
                 else
                 {
@@ -304,13 +322,13 @@ namespace ЧМ_Лаб__5
       
         private static double CalcError(double expected, double recived) => Abs(expected - recived);
 
-        private static void PrintStr(string str)
+        public static void PrintStr(string str)
         {
             OutFile.WriteLine(str);
             Console.WriteLine(str);
         }
 
-        private static void PrintStr()
+        public static void PrintStr()
         {
             OutFile.WriteLine();
             Console.WriteLine();
@@ -324,8 +342,7 @@ namespace ЧМ_Лаб__5
             PrintStr("1. Формула Ньютона:");
             NyutonInterpolation();
             PrintStr("1. Кубический сплайн дефекта 1:");
-            BuildSpline(Table, N + 1);
-            QuadSpline();
+            CubSpline();
             PrintStr("2. Cреднеквадратичное приближение табличным методом");
             TableApprox();
             PrintStr("2. Cреднеквадратичное приближение непрерывным методом");
