@@ -201,7 +201,7 @@ namespace ЧМ_Лаб__6
             if (nAlreadyFound)
             {
                 var delta = (B - A) / n;
-                for (var i = 0; i < n; i++)
+                for (var i = 1; i < n; i++)
                 {
                     sum += Func(A + i * delta);
                 }
@@ -216,7 +216,7 @@ namespace ЧМ_Лаб__6
                 sum = 0;
                 n *= 2;
                 var delta = (B - A) / n;
-                for (var i = 0; i < n; i++)
+                for (var i = 1; i < n; i++)
                 {
                     sum += Func(A + i * delta);
                 }
@@ -226,7 +226,7 @@ namespace ЧМ_Лаб__6
                 realError = Abs(sum - RealValue);
                 PrintStr(n + "    " + DoubleConverter.ToExactString(sum) + "   " + teoreticError + "   " + realError);
             } while (realError > Eps);
-            PrintStr("Порядок аппроксимации: " + CalcApproxOrder(n, 1));
+            PrintStr("Порядок аппроксимации: " + CalcApproxOrder(n, 2));
             PrintStr();
             return sum;
         }
@@ -264,7 +264,7 @@ namespace ЧМ_Лаб__6
                 realError = Abs(sum - RealValue);
                 PrintStr(n + "    " + DoubleConverter.ToExactString(sum) + "   " + teoreticError + "   " + realError);
             } while (realError > Eps);
-            PrintStr("Порядок аппроксимации: " + CalcApproxOrder(n, 1));
+            PrintStr("Порядок аппроксимации: " + CalcApproxOrder(n, 3));
             PrintStr();
             return sum;
         }
@@ -311,7 +311,7 @@ namespace ЧМ_Лаб__6
                 realError = Abs(sum - RealValue);
                 PrintStr(n + "    " + DoubleConverter.ToExactString(sum) + "   " + realError);
             } while (realError > Eps);
-            PrintStr("Порядок аппроксимации: " + CalcApproxOrder(n, 1));
+            PrintStr("Порядок аппроксимации: " + CalcApproxOrder(n, 4));
             PrintStr();
             return sum;
         }
