@@ -156,6 +156,7 @@ namespace ЧМ_Лаб__6
             return M6;
         }
 
+        // Порядок аппроксимции
         private static double CalcApproxOrder(int n, IntegrateMethod method)
         {
             return 1 / Log(0.5) * Log((method(4 * n, true) - method(n, true)) 
@@ -379,6 +380,8 @@ namespace ЧМ_Лаб__6
             CalcSimpsonIntegral(1);
 
             CalcGaussIntegral(1);
+
+            OutFile.Close();
         }
     }
 }
