@@ -10,7 +10,7 @@ namespace ЧМ_Лаб__6
 {
     class Program
     {
-        private const int N = 100000000, Var = 17;
+        private const int N = 10000, Var = 17;
         private const double A = 1, B = 2;
         private const double Delta = (B - A) / N;
         private static readonly StreamWriter OutFile = new StreamWriter("out.txt");
@@ -87,7 +87,7 @@ namespace ЧМ_Лаб__6
         private static double CalcModifiedTrapezeIntegral()
         {
             double sum = 0;
-            for (var i = 1.0; i <= 2.0; i += Delta)
+            for (var i = A + Delta; i < B; i += Delta)
             {
                 sum += Func(i);
             }
