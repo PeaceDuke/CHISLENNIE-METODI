@@ -11,7 +11,7 @@ namespace ЧМ_Лаб__5
         private delegate double func(double x);
 
         public const int N = 5;
-        private const int Var = 17;
+        private const int Var = 16;
         public const double A = 1, B = 2;
         public const double Delta = (B - A) / N;
 
@@ -93,6 +93,8 @@ namespace ЧМ_Лаб__5
                 default: return 0;
             }
         }
+
+        //печать функции
         private static void PrintFunc()
         {
             string str;
@@ -106,6 +108,7 @@ namespace ЧМ_Лаб__5
             PrintStr();
         }
 
+        //заполнение таблицы x/y
         private static void FillTable()
         {
             var x = A;
@@ -118,6 +121,7 @@ namespace ЧМ_Лаб__5
             }
         }
 
+        //печать таблицы x/y
         private static void PrintTable()
         {
             PrintStr("Таблица значений на отрезке [" + A + ";" + B + "] с шагом delta = " + ((B - A) / N));
@@ -131,8 +135,37 @@ namespace ЧМ_Лаб__5
             PrintStr(yStr);
             PrintStr();
         }
+        
+        //составление таблицы соседних разностей
+        static void NeigboursTable()
+        {
+            double[,] table = new double[2 * N, N];
+            for (int i = 0; i < N; i++)
+            {
+                for (int j = i; j < 2 * N - i; j += 2)
+                {
+                    table[j, i] = CalcNeigbours((j - i) / 2, (j + i) / 2);
+                }
+            }
+            PrintNeigboursTable(table);
+        }
 
-        private static double OmegaFunc(double x, int num)
+        //печать таблицы соседних разностей
+        static void PrintNeigboursTable(double[,] table)
+        {
+            for(int i = 0; i < 2 * N; i++)
+            {
+                string outStr = "";
+                for(int j = 0; j < N; j++)
+                {
+                    outStr += table[i, j] == 0 ? "\t" : table[i, j].ToString("0.000000") + "\t";
+                }
+                PrintStr(outStr);
+            }
+        }
+
+        //Составление Омега функции
+        static double OmegaFunc(double x, int num)
         {
             double res = 1;
             for(var i = 0; i < num; i++)
@@ -142,6 +175,7 @@ namespace ЧМ_Лаб__5
             return res;
         }
 
+        //Вычисление соседних разностей
         static double CalcNeigbours(int a, int b)
         {
             if (a == b)
@@ -154,6 +188,7 @@ namespace ЧМ_Лаб__5
             }
         }
 
+        //Полином интерполирования для метода Ньютона
         static double InterPolynomial(double x)
         {
             double sum = 0;
@@ -164,13 +199,15 @@ namespace ЧМ_Лаб__5
             return sum;
         }
 
+        //Вычисление факториала
         static double Factorial(double n)
         {
             if (n == 0)
                 return 1;
             return n * Factorial(n - 1);
         }
-
+      
+        //Интерполяция методом Ньютона
         static void NyutonInterpolation()
         {
             var M6 = double.MinValue;
@@ -179,19 +216,20 @@ namespace ЧМ_Лаб__5
                 if (SixthDerivative(i) > M6)
                     M6 = SixthDerivative(i);
             }
-            PrintStr(M6.ToString());
+            PrintStr("Заначение M6 =" + M6.ToString());
             double recived = 0, expected = 0;
             PrintStr("x     Ожидаемое  Полученное   Реальная погрешность    Оценка погрешности");
             for (double i = 1.1; i < 2; i += 0.2)
             {
                 recived = InterPolynomial(i);
                 expected = Func(i);
-                PrintStr(i + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " + CalcError(expected, recived) + "    " +
-                    Abs(M6 * OmegaFunc(i, N + 1) / Factorial(N + 1)));
+                PrintStr(i + "   " + expected.ToString("0.000000") + "   " + recived.ToString("0.000000") + "     " 
+                    + CalcError(expected, recived) + "    " + Abs(M6 * OmegaFunc(i, N + 1) / Factorial(N + 1)));
             }
             PrintStr();
         }
 
+        //Интерполяция методом кубического сплайна
         static void CubSpline()
         {
             CubicSplines.CalcSplineParams();
@@ -219,33 +257,38 @@ namespace ЧМ_Лаб__5
             PrintStr();
         }
 
-        private static double CalcIntegral(func f, double a, double b, int aim = 1000)
+        //Вычисление интеграла
+        private static double CalcIntegral(func f, int aim = 10000)
         {
-            double sum = 0, delta = (b - a) / aim;
-            for (var i = a; i < b; i+= delta)
+            double sum = 0, a, b, delta = (B - A) / aim;
+            for (int i = 0; i < aim; i++)
             {
-                sum += f(i);
+                a = A + delta * i;
+                b = A + delta * (i + 1);
+                sum += (b - a) * (f(a) + f(b) + 4 * f((a + b) / 2)) / 6;
             }
-            return Round(sum * delta, aim.ToString().Length - 1);
+            return sum;
         }
 
+        //Функции для работы с делегатами
         private static func G(int num) => x => Pow(x, num);
         static func CoefFunc(func f, double k) => x => k * f(x);
         private static func SumFunc(func f, func g) => x => f(x) + g(x);
         private static func ProdFunc(func f, func g) => x => f(x) * g(x);
 
+        //Метод непрерывной апроксимации
         static void СontinuousАpprox()
         {
-            int n = 3, aim = 1000000;
+            int n = 3;
             double[,] matrix = new double[n, n];
             double[] vector = new double[n], c = new double[n];
             for (int i = 0; i < n; i++)
             {
                 for (int j = 0; j < n; j++)
                 {
-                    matrix[i, j] = CalcIntegral(ProdFunc(G(i), G(j)), A, B, aim);
+                    matrix[i, j] = CalcIntegral(ProdFunc(G(i), G(j)));
                 }
-                vector[i] = CalcIntegral(ProdFunc(Func, G(i)), A, B, aim);
+                vector[i] = CalcIntegral(ProdFunc(Func, G(i)));
             }
             PrintStr("Матрица C");
             PrintMatrix(matrix, n);
@@ -269,17 +312,16 @@ namespace ЧМ_Лаб__5
                 }
             }
             PrintStr(str);
-            func sum = delegate (double x) { return 0; };
+            var f = CalcIntegral(ProdFunc(Func, Func));
+            double g = 0;
             for (int i = 0; i < n; i++)
-            {
-                sum = SumFunc(CoefFunc(G(i), c[i]), sum);
-            }
-            var f = CalcIntegral(ProdFunc(Func, Func), A, B, aim);
-            var g = CalcIntegral(ProdFunc(sum, sum), A, B, aim);
-            PrintStr("Погрешность приближения: " + Abs(f - g).ToString());
+                g += CalcIntegral(ProdFunc(Func, CoefFunc(G(i),c[i])));
+            g = Abs(g);
+            PrintStr("Погрешность приближения: " + Sqrt(Abs(f - g)).ToString());
             PrintStr();
         }
 
+        //Метод табличной апроксимации
         static void TableApprox()
         {
             int n = 3;
@@ -322,24 +364,23 @@ namespace ЧМ_Лаб__5
                 }
             }
             PrintStr(str);
-            sum = 0.0;
-            double sum1 = 0.0;
-            func sumF = delegate (double x) { return 0; };
-            for (int i = 0; i < n; i++)
+            double f = 0.0, g = 0.0;
+            for (int i = 0; i <= N; i++)
             {
-                sumF = SumFunc(CoefFunc(G(i), c[i]), sumF);
-            }
-            for (int k = 0; k <= N; k++)
+                f += Table[i].Y * Table[i].Y;
+            }   
+            for(int i = 0; i < n; i++)
             {
-                sum += Table[k].Y * Table[k].Y;
-                sum1 += sumF(Table[k].X) * sumF(Table[k].X);
+                for(int j = 0; j <= N; j++)
+                {
+                    g += Table[j].Y * c[i] * G(i)(Table[j].X);
+                }
             }
-            var f = sum;
-            var g = sum1;
-            PrintStr("Погрешность приближения: " + Abs(f - g).ToString());
+            PrintStr("Погрешность приближения: " + Sqrt(Abs(f - g)).ToString());
             PrintStr();
         }
 
+        //Разворот таблицы для обратного интерполирования Ньютона
         static void TableRevers()
         {
             for (int i = 0; i <= N; i++)
@@ -350,26 +391,30 @@ namespace ЧМ_Лаб__5
             }
         }
 
+        //Обратное интерполирование Ньютона
         private static void BackInterpolation(double y)
         {
             TableRevers();
+            PrintStr("Таблица обратных разностей для обратного тетода Ньютона");
+            NeigboursTable();
             double x = InterPolynomial(y);
             PrintStr("С = " + y);
             PrintStr("Результат обратного интерполирования для y = " + y.ToString() + ": x = " + x.ToString());
             PrintStr("Значение функции в полученой точке x: y = " + Func(x));
-            PrintStr("Оценка погрешности для этой точки: " + CalcError(Func(x), y).ToString("0.000000"));
+            PrintStr("Погрешности для этой точки: " + CalcError(Func(x), y).ToString("0.000000"));
             PrintStr();
             TableRevers();
         }
       
+        //Вычисление ошибки
         private static double CalcError(double expected, double recived) => Abs(expected - recived);
 
+        //Печать строки в файл и консоль
         public static void PrintStr(string str)
         {
             OutFile.WriteLine(str);
             Console.WriteLine(str);
         }
-
         public static void PrintStr()
         {
             OutFile.WriteLine();
@@ -381,6 +426,8 @@ namespace ЧМ_Лаб__5
             PrintFunc();
             FillTable();
             PrintTable();
+            PrintStr("Таблица соседних разностей");
+            NeigboursTable();
             PrintStr("1. Формула Ньютона:");
             NyutonInterpolation();
             PrintStr("1. Кубический сплайн дефекта 1:");
@@ -390,7 +437,7 @@ namespace ЧМ_Лаб__5
             PrintStr("2. Cреднеквадратичное приближение непрерывным методом");
             СontinuousАpprox();
             PrintStr("3. Обратное интерполирование по формуле Ньютона");
-            BackInterpolation(1.5);
+            BackInterpolation(7);
             OutFile.Close();
         }
     }
