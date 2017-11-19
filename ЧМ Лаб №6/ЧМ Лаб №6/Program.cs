@@ -10,7 +10,7 @@ namespace ЧМ_Лаб__6
 {
     class Program
     {
-        private const int N = 100000, Var = 17;
+        private const int N = 100000000, Var = 17;
         private const double A = 1, B = 2;
         private const double Delta = (B - A) / N;
         private static readonly StreamWriter OutFile = new StreamWriter("out.txt");
@@ -21,6 +21,17 @@ namespace ЧМ_Лаб__6
             {
                 case 16: return Atan(x) + 1 / x / x;
                 case 17: return Exp(x) + x + 1;
+                default: return 0;
+            }
+        }
+
+        // Первая производная f
+        public static double FirstDerivative(double x)
+        {
+            switch (Var)
+            {
+                case 16: return 1 / (x * x + 1) - 2 / (x * x * x);
+                case 17: return Exp(x) + 1;
                 default: return 0;
             }
         }
@@ -40,17 +51,24 @@ namespace ЧМ_Лаб__6
 
         private static void Main(string[] args)
         {
-            double t = CalcTrapezeIntegral();
+            var t = CalcTrapezeIntegral();
             PrintStr("Метод трапеции");
-            PrintStr("Приближенное значение: " + t);
+            PrintStr("Приближенное значение: " + DoubleConverter.ToExactString(t));
             PrintStr("Погрешность: " + Abs(t - RealValue));
+
+            t = CalcModifiedTrapezeIntegral();
+            PrintStr("Модифицированный сплайном метод трапеции");
+            PrintStr("Приближенное значение: " + DoubleConverter.ToExactString(t));
+            PrintStr("Погрешность: " + Abs(t - RealValue));
+
             t = CalcSimpsonIntegral();
             PrintStr("Метод Симпсона");
-            PrintStr("Приближенное значение: " + t);
+            PrintStr("Приближенное значение: " + DoubleConverter.ToExactString(t));
             PrintStr("Погрешность: " + Abs(t - RealValue));
+
             t = CalcGaussIntegral();
             PrintStr("Метод Гаусса(трехточечный)");
-            PrintStr("Приближенное значение: " + t);
+            PrintStr("Приближенное значение: " + DoubleConverter.ToExactString(t));
             PrintStr("Погрешность: " + Abs(t - RealValue));
         }
 
@@ -64,6 +82,17 @@ namespace ЧМ_Лаб__6
                 sum += (b - a) * (Func(a) + Func(b)) / 2;
             }
             return sum;
+        }
+
+        private static double CalcModifiedTrapezeIntegral()
+        {
+            double sum = 0;
+            for (var i = 1.0; i <= 2.0; i += Delta)
+            {
+                sum += Func(i);
+            }
+            return Delta * (0.5 * (Func(A) + Func(B)) + sum) +
+                   Delta * Delta / 12 * (FirstDerivative(A) - FirstDerivative(B));
         }
 
         private static double CalcSimpsonIntegral()
@@ -80,7 +109,7 @@ namespace ЧМ_Лаб__6
 
         private static double CalcGaussIntegral()
         {
-            double sum = 0, a, b, p;
+            double sum = 0, a, b;
             for (int i = 0; i < N; i++)
             {
                 a = A + Delta * i;
