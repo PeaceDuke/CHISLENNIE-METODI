@@ -101,21 +101,23 @@ namespace ЧМ_Лаб__5
         {
             for (int i = 0; i<n; i++)
             {
+                string str = "";
                 for (int j = 0; j<n; j++)
-                    Console.Write(matrix[i, j].ToString("0.000") + "\t");
-                Console.WriteLine();
+                    str += matrix[i, j].ToString("0.000") + "\t";
+                Program.PrintStr(str);
             }
-            Console.WriteLine();
+            Program.PrintStr();
         }
 
         public static void PrintVector(double[] vector, int n)
         {
+            string str = "";
             for (int i = 0; i<n; i++)
             {
-                Console.Write(vector[i].ToString("0.000") + "\t");
+                str += vector[i].ToString("0.000") + "\t";
             }
-            Console.WriteLine();
-            Console.WriteLine();
+            Program.PrintStr(str);
+            Program.PrintStr();
         }
 
     }

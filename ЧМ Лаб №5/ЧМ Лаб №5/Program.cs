@@ -11,7 +11,7 @@ namespace ЧМ_Лаб__5
         private delegate double func(double x);
 
         public const int N = 5;
-        private const int Var = 17;
+        private const int Var = 16;
         public const double A = 1, B = 2;
         public const double Delta = (B - A) / N;
 
