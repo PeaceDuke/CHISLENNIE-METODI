@@ -101,7 +101,7 @@ namespace ЧМ_Лаб__7
         static double d = 0.1;
         private static double KoshiSolve(double x, double y, double z)
         {
-            double delta = 2 * 0.1, y1 = 0, y2 = 0, eps = 10e-5;
+            double delta = 2 * 0.1, y1 = 0, y2 = 0, eps = 1e-5;
             int i = 0;
             do
             {
@@ -122,7 +122,7 @@ namespace ЧМ_Лаб__7
 
         private static void Solver()
         {
-            double alpha1 = 0, alpha2 = 2, alpha3 = 0, b = 0, eps = 10e-4;
+            double alpha1 = 0, alpha2 = 2, alpha3 = 0, b = 0, eps = 1e-4;
             if (Abs(KoshiSolve(0, 1, alpha1) - 2) < eps)
                 return;
             if (Abs(KoshiSolve(0, 1, alpha2) - 2) < eps)
