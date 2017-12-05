@@ -268,14 +268,13 @@ namespace ЧМ_Лаб__6
             if (nAlreadyFound)
             {
                 var delta = (B - A) / n;
-                double sum1 = 0, sum2 = 0;
-                for (int i = 1; i <= n / 2; i++)
+                double b, a;
+                for (int i = 0; i < n; i++)
                 {
-                    sum1 += Func(A + (2 * i - 1) * delta);
-                    if (i != n / 2)
-                        sum2 += Func(A + 2 * i * delta);
+                    a = A + delta * i;
+                    b = A + delta * (i + 1);
+                    sum += (b - a) * (Func(a) + Func(b) + 4 * Func((a + b) / 2)) / 6;
                 }
-                sum = delta / 3 * ((Func(A) + Func(B)) + 4 * sum1 + 2 * sum2);
                 return sum;
             }
             PrintStr("=== Метод Симпсона ===");
@@ -286,14 +285,13 @@ namespace ЧМ_Лаб__6
                 sum = 0;
                 n *= 2;
                 var delta = (B - A) / n;
-                double sum1 = 0, sum2 = 0;
-                for (int i = 1; i <= n / 2; i++)
+                double b, a;
+                for (int i = 0; i < n; i++)
                 {
-                    sum1 += Func(A + (2 * i - 1) * delta);
-                    if (i != n / 2)
-                        sum2 += Func(A + 2 * i * delta);
+                    a = A + delta * i;
+                    b = A + delta * (i + 1);
+                    sum += (b - a) * (Func(a) + Func(b) + 4 * Func((a + b) / 2)) / 6;
                 }
-                sum = delta / 3 * ((Func(A) + Func(B)) + 4 * sum1 + 2 * sum2);
                 var teoreticError = CalcErrorForSimpson(n);
                 realError = Abs(sum - RealValue);
                 PrintStr(n + "    " + DoubleConverter.ToExactString(sum) + "   " + teoreticError + "   " + realError);
