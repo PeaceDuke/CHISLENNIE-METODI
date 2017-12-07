@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using static System.Math;
 
@@ -10,7 +6,7 @@ namespace ЧМ_Лаб__7
 {
     class Program
     {
-        const int Var = 16;
+        public const int Var = 17;
         const double Y0 = 1, Y1 = 2;
         static StreamWriter outFile = new StreamWriter("out.txt");
 
@@ -148,15 +144,28 @@ namespace ЧМ_Лаб__7
 
         static void Main(string[] args)
         {
-            Solver();
+            //Solver();
+            HeatEquationSolver.SolveWithExplicitMesh(8);
+            HeatEquationSolver.SolveWithExplicitMesh(16);
+            HeatEquationSolver.SolveWithExplicitMesh(32);
+            HeatEquationSolver.SolveWithImplicitMesh(8);
+            HeatEquationSolver.SolveWithImplicitMesh(16);
+            HeatEquationSolver.SolveWithImplicitMesh(32);
         }
 
-        private static void PrintStr(string str)
+        public static void PrintStr(string str)
         {
             Console.WriteLine(str);
             outFile.WriteLine(str);
         }
-        private static void PrintStr()
+
+        public static void PrintStrNoLineBreak(string str)
+        {
+            Console.Write(str);
+            outFile.Write(str);
+        }
+
+        public static void PrintStr()
         {
             Console.WriteLine();
             outFile.WriteLine();
