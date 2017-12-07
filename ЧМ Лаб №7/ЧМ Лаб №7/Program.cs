@@ -6,7 +6,7 @@ namespace ЧМ_Лаб__7
 {
     class Program
     {
-        public const int Var = 17;
+        public const int Var = 16;
         const double Y0 = 1, Y1 = 2;
         static StreamWriter outFile = new StreamWriter("out.txt");
 
@@ -69,7 +69,8 @@ namespace ЧМ_Лаб__7
         //    }
         //    return sum;
         //}
-        
+
+        static double maxError = double.MinValue;
         private static double CalcK(double delta, double x, double y, double z)
         {
             double[] k = new double[4], l = new double[4];
@@ -84,14 +85,22 @@ namespace ЧМ_Лаб__7
                 k[2] = delta * (z + l[1] / 2);
                 l[3] = delta * ShootingFunc(x + delta, y + k[2], z + l[2]);
                 k[3] = delta * (z + l[2]);
-                var realY = TrialFunc(x);
-                if (flag) PrintStr(x.ToString("0.00#####") + '\t' + y.ToString("0.0000000000000") + "\t\t" + TrialFunc(x).ToString("0.0000000000000") + '\t' + '\t' + Abs(realY - y));
+                if (flag)
+                {
+                    var realY = TrialFunc(x);
+                    var error = Abs(realY - y);
+                    if (maxError < error)
+                        maxError = error;
+                    PrintStr(x.ToString("0.00#####") + '\t' + y.ToString("0.0000000000000") + "\t\t" + 
+                        TrialFunc(x).ToString("0.0000000000000") + '\t' + '\t' + error);
+                }
                 y = y + 1.0 / 6.0 * (k[0] + 2 * (k[1] + k[2]) + k[3]);
                 x = Round(x + delta, 6);
                 z = z + 1.0 / 6.0 * (l[0] + 2 * (l[1] + l[2]) + l[3]);
                 zet = z;
             }
             while (x < 1);
+            if (flag) PrintStr("Максимальная погрешность: " + maxError);
             return y;
         }
 
@@ -146,7 +155,7 @@ namespace ЧМ_Лаб__7
 
         static void Main(string[] args)
         {
-            //Solver();
+            Solver();
             HeatEquationSolver.SolveWithExplicitMesh(8);
             HeatEquationSolver.SolveWithExplicitMesh(16);
             HeatEquationSolver.SolveWithExplicitMesh(32);
