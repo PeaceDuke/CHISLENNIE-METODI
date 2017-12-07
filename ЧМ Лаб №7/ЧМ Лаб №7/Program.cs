@@ -16,10 +16,10 @@ namespace ЧМ_Лаб__7
 
         private static double TrialFunc(double x) => 1 + x + 10 * Log(Var + 1.0) * Pow(x, 3) * Pow(1 - x, 3);
 
-        private static double FirstDerivativeTrialFunc(double x) => -30 * Pow(1 - x, 2) * Pow(x, 3) * Log(Var + 1) 
-            - 30 * Pow(x, 2) * Pow(x - 1, 3) * Log(Var + 1) + 1;
+        private static double FirstDerivativeTrialFunc(double x) => -30 * Pow(1 - x, 2) * Pow(x, 3) * Log(Var + 1.0) 
+            - 30 * Pow(x, 2) * Pow(x - 1, 3) * Log(Var + 1.0) + 1;
 
-        private static double SecondDerivativeTrialFunc(double x) => -60 * x * (5 * Pow(x, 3) - 10 * Pow(x, 2) + 6 * x - 1) * Log(Var + 1);
+        private static double SecondDerivativeTrialFunc(double x) => -60 * x * (5 * Pow(x, 3) - 10 * Pow(x, 2) + 6 * x - 1) * Log(Var + 1.0);
         
         private static double ShootingFunc(double x, double y, double z)
         {
@@ -73,11 +73,11 @@ namespace ЧМ_Лаб__7
         //    }
         //    return sum;
         //}
-
-
+        
         private static double CalcK(double delta, double x, double y, double z)
         {
             double[] k = new double[4], l = new double[4];
+            if (flag) PrintStr("x \ty(x) полученное \ty(x) реальное \t\t Погрешность");
             do
             {
                 l[0] = delta * ShootingFunc(x, y, z);
@@ -88,10 +88,12 @@ namespace ЧМ_Лаб__7
                 k[2] = delta * (z + l[1] / 2);
                 l[3] = delta * ShootingFunc(x + delta, y + k[2], z + l[2]);
                 k[3] = delta * (z + l[2]);
+                var realY = TrialFunc(x);
+                if (flag) PrintStr(x.ToString("0.00#####") + '\t' + y.ToString("0.0000000000000") + "\t\t" + TrialFunc(x).ToString("0.0000000000000") + '\t' + '\t' + Abs(realY - y));
                 y = y + 1.0 / 6.0 * (k[0] + 2 * (k[1] + k[2]) + k[3]);
-                if (flag) PrintStr("x = " + Round(x, 6) + " y = " + y);
-                x = x + delta;
+                x = Round(x + delta, 6);
                 z = z + 1.0 / 6.0 * (l[0] + 2 * (l[1] + l[2]) + l[3]);
+                zet = z;
             }
             while (x < 1);
             return y;
@@ -99,6 +101,7 @@ namespace ЧМ_Лаб__7
 
         static bool flag = false;
         static double d = 0.1;
+        static double zet = 0;
         private static double KoshiSolve(double x, double y, double z)
         {
             double delta = 2 * 0.1, y1 = 0, y2 = 0, eps = 1e-5;
@@ -109,12 +112,11 @@ namespace ЧМ_Лаб__7
                 delta = delta / 2;
                 y1 = CalcK(delta, 1, y, z);
                 y2 = CalcK(delta / 2, 1, y, z);
-                y2 = CalcK(delta / 2, 1, y2, z);
-                //PrintStr(i + ": Delta = " + delta + " y(1) = " + CalcK(delta, x, y, z) + " Погрешность = " + Abs(y1 - y2));
+                y2 = CalcK(delta / 2, 1, y2, zet);
             }
             while (Abs(y1 - y2) > eps);
             y1 = CalcK(delta, x, y, z);
-            PrintStr("Alpha = " + z + " y(1) = " + y1 + " Delta = " + delta);
+            PrintStr("Alpha = " + z + " y(1) = " + y1 + " Погрешность "+ Abs(y1 - 2));
             PrintStr();
             d = delta;
             return y1;
@@ -122,7 +124,7 @@ namespace ЧМ_Лаб__7
 
         private static void Solver()
         {
-            double alpha1 = 0, alpha2 = 2, alpha3 = 0, b = 0, eps = 1e-4;
+            double alpha1 = 0, alpha2 = 2.5, alpha3 = 0, b = 0, eps = 1e-4;
             if (Abs(KoshiSolve(0, 1, alpha1) - 2) < eps)
                 return;
             if (Abs(KoshiSolve(0, 1, alpha2) - 2) < eps)
@@ -142,7 +144,7 @@ namespace ЧМ_Лаб__7
             }
             PrintStr("Искомая alpha = " + alpha3);
             flag = true;
-            CalcK(d, 0, 1, alpha3);
+            CalcK(0.0125, 0, 1, alpha3);
             PrintStr();
         }
 
