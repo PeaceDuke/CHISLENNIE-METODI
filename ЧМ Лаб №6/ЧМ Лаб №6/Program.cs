@@ -11,6 +11,8 @@ namespace ЧМ_Лаб__6
         private static readonly double Eps = Pow(10, -8);
         private static readonly StreamWriter OutFile = new StreamWriter("out.txt");
 
+        private delegate double IntegrateMethod(int n, bool flag);
+
         // Функция f
         private static double Func(double x)
         {
@@ -84,6 +86,17 @@ namespace ЧМ_Лаб__6
             }
         }
 
+        // Шестая производная f
+        public static double SixthDerivative(double x)
+        {
+            switch (Var)
+            {
+                case 16: return x * (5040 * Pow(x, -9) + Pow(x * x + 1, -6) * (2400 * x * x - 720 * Pow(x, 4) - 720));
+                case 17: return Exp(x);
+                default: return 0;
+            }
+        }
+
         // Значение интеграла, полученное через Вольфрам
         private static double RealValue
         {
@@ -128,25 +141,26 @@ namespace ЧМ_Лаб__6
             return M4;
         }
 
-        private static double CalcApproxOrder(int n, int methodNumb)
+        private static double CalcM6(int n)
         {
-            switch (methodNumb)
+            var M6 = double.MinValue;
+            var delta = (B - A) / n;
+            for (var i = 0; i < n; i++)
             {
-                case 1:
-                    return 1 / Log(0.5) * Log((CalcTrapezeIntegral(4 * n, true) - CalcTrapezeIntegral(n, true)) 
-                        / (CalcTrapezeIntegral(2 * n, true) - CalcTrapezeIntegral(n, true)));
-                case 2:
-                    return 1 / Log(0.5) * Log((CalcModifiedTrapezeIntegral(4 * n, true) - CalcModifiedTrapezeIntegral(n, true)) 
-                        / (CalcModifiedTrapezeIntegral(2 * n, true) - CalcModifiedTrapezeIntegral(n, true)));
-                case 3:
-                    return 1 / Log(0.5) * Log((CalcSimpsonIntegral(4 * n, true) - CalcSimpsonIntegral(n, true)) 
-                        / (CalcSimpsonIntegral(2 * n, true) - CalcSimpsonIntegral(n, true)));
-                case 4:
-                    return 1 / Log(0.5) * Log((CalcGaussIntegral(4 * n, true) - CalcGaussIntegral(n, true)) 
-                        / (CalcGaussIntegral(2 * n, true) - CalcGaussIntegral(n, true)));
-                default:
-                    return 0;
+                var t = Abs(SixthDerivative(A + i * delta));
+                if (t > M6)
+                {
+                    M6 = t;
+                }
             }
+            return M6;
+        }
+
+        // Порядок аппроксимции
+        private static double CalcApproxOrder(int n, IntegrateMethod method)
+        {
+            return 1 / Log(0.5) * Log((method(4 * n, true) - method(n, true)) 
+                / (method(2 * n, true) - method(n, true)) - 1);
         }
 
         // Метод трапеции
@@ -156,12 +170,11 @@ namespace ЧМ_Лаб__6
             if (nAlreadyFound)
             {
                 var delta = (B - A) / n;
-                for (var i = 0; i < n; i++)
+                for (int i = 1; i < n; i++)
                 {
-                    var a = A + delta * i;
-                    var b = A + delta * (i + 1);
-                    sum += (b - a) * (Func(a) + Func(b)) / 2;
+                    sum += Func(A + i * delta);
                 }
+                sum = delta * ((Func(A) + Func(B)) / 2 + sum);
                 return sum;
             }
             PrintStr("=== Метод трапеции ===");
@@ -172,17 +185,17 @@ namespace ЧМ_Лаб__6
                 sum = 0;
                 n *= 2;
                 var delta = (B - A) / n;
-                for (var i = 0; i < n; i++)
+                for (int i = 1; i < n; i++)
                 {
-                    var a = A + delta * i;
-                    var b = A + delta * (i + 1);
-                    sum += (b - a) * (Func(a) + Func(b)) / 2;
+                    sum += Func(A + i * delta);
                 }
+                sum = delta * ((Func(A) + Func(B)) / 2 + sum);
                 var teoreticError = CalcErrorForTrapeze(n);
                 realError = Abs(sum - RealValue);
                 PrintStr(n + "    " + DoubleConverter.ToExactString(sum) + "   " + teoreticError + "   " + realError);
             } while (realError > Eps);
-            PrintStr("Порядок аппроксимации: " + CalcApproxOrder(n, 1));
+            PrintStr("Общее число обращений к подынтегральной функции: " + n);
+            PrintStr("Порядок аппроксимации: " + CalcApproxOrder(n, CalcTrapezeIntegral));
             PrintStr();
             return sum;
         }
@@ -193,6 +206,22 @@ namespace ЧМ_Лаб__6
             var delta = (B - A) / n;
             return Abs(delta * delta / 12 * (B - A) * CalcM2(n));
         }
+
+        /*private static void CalcModifiedTrapezeIntegral()
+        {
+            double sum = 0;
+            for (int i = 1; i < N; i++)
+            {
+                sum += Func(A + i * Delta);
+            }
+            sum = Delta * (0.5 * (Func(A) + Func(B)) + sum) +
+                   Delta * Delta / 12 * (FirstDerivative(A) - FirstDerivative(B));
+            PrintStr("Модифицированный сплайном метод трапеции");
+            PrintStr("Приближенное значение: " + DoubleConverter.ToExactString(sum));
+            PrintStr("Ожидаемая погрешность: " + CalcErrorForTrapeze());
+            PrintStr("Реальная погрешность: " + Abs(sum - RealValue));
+            PrintStr();
+        }*/
 
         // Метод трапеции(модифицированный)
         private static double CalcModifiedTrapezeIntegral(int n, bool nAlreadyFound = false)
@@ -226,7 +255,8 @@ namespace ЧМ_Лаб__6
                 realError = Abs(sum - RealValue);
                 PrintStr(n + "    " + DoubleConverter.ToExactString(sum) + "   " + teoreticError + "   " + realError);
             } while (realError > Eps);
-            PrintStr("Порядок аппроксимации: " + CalcApproxOrder(n, 2));
+            PrintStr("Общее число обращений к подынтегральной функции: " + (n + 2));
+            PrintStr("Порядок аппроксимации: " + CalcApproxOrder(n, CalcModifiedTrapezeIntegral));
             PrintStr();
             return sum;
         }
@@ -238,10 +268,11 @@ namespace ЧМ_Лаб__6
             if (nAlreadyFound)
             {
                 var delta = (B - A) / n;
-                for (var i = 0; i < n; i++)
+                double b, a;
+                for (int i = 0; i < n; i++)
                 {
-                    var a = A + delta * i;
-                    var b = A + delta * (i + 1);
+                    a = A + delta * i;
+                    b = A + delta * (i + 1);
                     sum += (b - a) * (Func(a) + Func(b) + 4 * Func((a + b) / 2)) / 6;
                 }
                 return sum;
@@ -254,17 +285,19 @@ namespace ЧМ_Лаб__6
                 sum = 0;
                 n *= 2;
                 var delta = (B - A) / n;
-                for (var i = 0; i < n; i++)
+                double b, a;
+                for (int i = 0; i < n; i++)
                 {
-                    var a = A + delta * i;
-                    var b = A + delta * (i + 1);
+                    a = A + delta * i;
+                    b = A + delta * (i + 1);
                     sum += (b - a) * (Func(a) + Func(b) + 4 * Func((a + b) / 2)) / 6;
                 }
                 var teoreticError = CalcErrorForSimpson(n);
                 realError = Abs(sum - RealValue);
                 PrintStr(n + "    " + DoubleConverter.ToExactString(sum) + "   " + teoreticError + "   " + realError);
             } while (realError > Eps);
-            PrintStr("Порядок аппроксимации: " + CalcApproxOrder(n, 3));
+            PrintStr("Общее число обращений к подынтегральной функции: " + n);
+            PrintStr("Порядок аппроксимации: " + CalcApproxOrder(n, CalcSimpsonIntegral));
             PrintStr();
             return sum;
         }
@@ -307,13 +340,21 @@ namespace ЧМ_Лаб__6
                     sum += (b - a) * (5.0 / 9.0 * Func(0.5 *(a + b + (b - a) * -Sqrt(3.0 / 5.0))) +
                                       8.0 / 9.0 * Func(0.5 * (a + b)) + 5.0 / 9.0 * Func(0.5 * (a + b + (b - a) * Sqrt(3.0 / 5.0)))) / 2;
                 }
-                //todo var teoreticError = ;
+                var teoreticError = CalcErrorForSimpson(n);
                 realError = Abs(sum - RealValue);
-                PrintStr(n + "    " + DoubleConverter.ToExactString(sum) + "   " + realError);
+                PrintStr(n + "    " + DoubleConverter.ToExactString(sum) + "   " + teoreticError + "     " + realError);
             } while (realError > Eps);
-            PrintStr("Порядок аппроксимации: " + CalcApproxOrder(n, 4));
+            PrintStr("Общее число обращений к подынтегральной функции: " + (n + 1));
+            PrintStr("Порядок аппроксимации: " + CalcApproxOrder(n, CalcGaussIntegral));
             PrintStr();
             return sum;
+        }
+
+        // Ожидаемая погрешность для метода Гаусса
+        private static double CalcErrorForGauss(int n)
+        {
+            var delta = (B - A) / n;
+            return Abs(CalcM6(n) * Pow(delta, 6) * Pow(6, 4) / Pow(12, 3) / 7 * (B - A));
         }
 
         private static void PrintStr(string str)
@@ -337,6 +378,8 @@ namespace ЧМ_Лаб__6
             CalcSimpsonIntegral(1);
 
             CalcGaussIntegral(1);
+
+            OutFile.Close();
         }
     }
 }
